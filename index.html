@@ -46,25 +46,21 @@
     padding: 3rem 1.5rem;
   }
 
-  /* ── entrance stagger ───────────────────────────── */
+  /* ── terminal print entrance ────────────────────── */
+  /* Each line prints in sequence, like a shell streaming output. */
   .in {
     opacity: 0;
-    transform: translateY(8px);
-    animation: fadeIn 400ms var(--ease-out) forwards;
+    animation: printIn 320ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 55ms);
   }
-  .in:nth-child(1) { animation-delay: 0ms; }
-  .in:nth-child(2) { animation-delay: 60ms; }
-  .in:nth-child(3) { animation-delay: 120ms; }
-  .in:nth-child(4) { animation-delay: 180ms; }
-  .in:nth-child(5) { animation-delay: 240ms; }
-  .in:nth-child(6) { animation-delay: 300ms; }
 
-  @keyframes fadeIn {
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes printIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .in { transform: none; animation-duration: 200ms; }
+    .in { animation-duration: 1ms; transform: none; }
     .cursor { animation: none; }
   }
 
@@ -108,9 +104,17 @@
   .bio {
     color: var(--text-dim);
     font-size: 0.85rem;
-    max-width: 58ch;
+    max-width: 66ch;
   }
   .bio b { color: var(--text); font-weight: 500; }
+
+  /* ── now-reading ────────────────────────────────── */
+  .reading {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  .reading .arrow { color: var(--text-faint); margin-right: 0.5rem; }
+  .reading b { color: var(--text); font-weight: 500; }
 
   /* ── projects ───────────────────────────────────── */
   .projects { list-style: none; }
@@ -151,34 +155,23 @@
 
   /* ── footer ─────────────────────────────────────── */
   footer {
-    margin-top: 2.75rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    color: var(--text-faint);
-    font-size: 0.75rem;
+    margin-top: 2.5rem;
+    font-size: 0.85rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.7rem;
+    gap: 0.5rem;
   }
   footer a {
-    color: var(--text-dim);
+    color: var(--accent);
     text-decoration: none;
     transition: color 150ms ease;
   }
   @media (hover: hover) and (pointer: fine) {
-    footer a:hover { color: var(--accent); }
+    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
-  .footer-links {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-  }
-  .footer-links .sep { color: var(--text-faint); }
-  .signoff { color: var(--text-dim); }
-  .signoff::before { content: "$ "; color: var(--green); }
-  .signoff .comment { color: var(--text-faint); }
+  .footer-line, .signoff { color: var(--text-dim); }
+  .footer-line::before, .signoff::before { content: "$ "; color: var(--green); }
+  .footer-line .sep, .signoff .comment { color: var(--text-faint); }
 
   .cursor {
     display: inline-block;
@@ -194,43 +187,43 @@
 </head>
 <body>
 <main>
-  <header class="in">
+  <header class="in" style="--i:0">
     <h1><span class="alien">👽</span> mks<span class="tld">.sh</span><span class="cursor"></span></h1>
     <p class="role"><span class="k">m0b1l3</span><span class="sep">·</span><span class="k">s3cur1ty</span><span class="sep">·</span><span class="k">71nk3r3r</span></p>
   </header>
 
-  <section class="in">
-    <p class="prompt"><span class="cmd">whoami</span></p>
+  <section>
+    <p class="prompt in" style="--i:1"><span class="cmd">whoami</span></p>
     <div class="output">
-      <p class="bio">
-        <b>runs on caffeine: mobile engineer 9–6, tinkerer 1–3 AM</b> —<br>
-        cold brew builds the apps, japanese iced breaks them.
+      <p class="bio in" style="--i:2">
+        <b>senior software engineering lead by day.</b><br>
+        tinkerer at heart — while awake: explore, build, break, repeat.
       </p>
     </div>
   </section>
 
-  <section class="in">
-    <p class="prompt"><span class="cmd">ls ~/weekend-hacks</span></p>
+  <section>
+    <p class="prompt in" style="--i:3"><span class="cmd">ls ~/weekend-hacks</span></p>
     <ul class="output projects">
-      <li>
+      <li class="in" style="--i:4">
         <a href="https://github.com/MKS-01/readback">
           <span class="name">readback</span>
           <p class="desc">any article → <b>offline audiobook</b>, 100% on-device</p>
         </a>
       </li>
-      <li>
+      <li class="in" style="--i:5">
         <a href="https://github.com/MKS-01/pizow">
           <span class="name">pizow</span>
           <p class="desc">$15 Pi Zero → <b>home server</b>, dashboards &amp; NAS</p>
         </a>
       </li>
-      <li>
+      <li class="in" style="--i:6">
         <a href="https://github.com/MKS-01/mac-mlx-cluster">
           <span class="name">mac-mlx-cluster</span>
           <p class="desc">spare Mac → <b>LLM cluster</b>, powered by MLX</p>
         </a>
       </li>
-      <li>
+      <li class="in" style="--i:7">
         <a href="https://github.com/MKS-01/mobile-recon">
           <span class="name">mobile-recon</span>
           <p class="desc">lab phone → <b>recon target</b>, AI-assisted security CLI</p>
@@ -239,13 +232,14 @@
     </ul>
   </section>
 
-  <footer class="in">
-    <nav class="footer-links">
-      <a href="https://github.com/MKS-01">github</a>
-      <span class="sep">·</span>
-      <a href="https://www.linkedin.com/in/mks01/">linkedin</a>
-    </nav>
-    <p class="signoff">brew install cold-brew japanese-iced <span class="comment"># fuel for the ghost hours ☕</span></p>
+  <section>
+    <p class="prompt in" style="--i:8"><span class="cmd">cat ~/now-reading</span></p>
+    <p class="output reading in" style="--i:9"><span class="arrow">›</span><b>The Visual MBA</b> — Jason Barron</p>
+  </section>
+
+  <footer>
+    <p class="footer-line in" style="--i:10">echo $SOCIALS <span class="sep">→</span> <a href="https://github.com/MKS-01">github</a> <span class="sep">·</span> <a href="https://www.linkedin.com/in/mks01/">linkedin</a></p>
+    <p class="signoff in" style="--i:11">brew install cold-brew japanese-iced <span class="comment"># required dependency ☕</span></p>
   </footer>
 </main>
 </body>
