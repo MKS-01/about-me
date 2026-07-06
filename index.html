@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MKS — coffee → code → tinker → repeat</title>
+<meta name="description" content="MKS — mobile, security, tinkerer. Old curiosities, new experiments — held together with duct tape and caffeine.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg-raised: #11161d;
+    --border: #21262d;
+    --text: #c9d1d9;
+    --text-dim: #8b949e;
+    --text-faint: #484f58;
+    --accent: #58a6ff;
+    --accent-deep: #1e3a5f;
+    --green: #3fb950;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scrollbar-gutter: stable; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    justify-content: center;
+    min-height: 100dvh;
+  }
+
+  main {
+    width: 100%;
+    max-width: 720px;
+    padding: clamp(2.5rem, 8vh, 6rem) 1.5rem 4rem;
+  }
+
+  /* ── entrance stagger ───────────────────────────── */
+  .in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeIn 400ms var(--ease-out) forwards;
+  }
+  .in:nth-child(1) { animation-delay: 0ms; }
+  .in:nth-child(2) { animation-delay: 60ms; }
+  .in:nth-child(3) { animation-delay: 120ms; }
+  .in:nth-child(4) { animation-delay: 180ms; }
+  .in:nth-child(5) { animation-delay: 240ms; }
+  .in:nth-child(6) { animation-delay: 300ms; }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .in { transform: none; animation-duration: 200ms; }
+    .cursor { animation: none; }
+  }
+
+  /* ── header ─────────────────────────────────────── */
+  header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  header h1 .tld { color: var(--text-faint); font-weight: 400; }
+
+  .role {
+    margin-top: 0.5rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  .role a { color: var(--accent); text-decoration: none; }
+  .role .sep { color: var(--text-faint); }
+
+  /* ── prompt lines ───────────────────────────────── */
+  .prompt {
+    margin-top: 2.75rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  .prompt::before {
+    content: "$ ";
+    color: var(--green);
+  }
+  .prompt .cmd { color: var(--text); }
+
+  .output {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  /* ── whoami ─────────────────────────────────────── */
+  .bio {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    max-width: 60ch;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .tag {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--accent);
+    background: var(--accent-deep);
+    background: color-mix(in srgb, var(--accent-deep) 35%, transparent);
+  }
+
+  /* ── projects ───────────────────────────────────── */
+  .projects { list-style: none; }
+
+  .projects a {
+    display: flex;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.35rem 0;
+    transition: transform 160ms var(--ease-out);
+  }
+  .projects a:active { transform: scale(0.995); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .projects a:hover .name { text-decoration: underline; text-underline-offset: 3px; }
+    .projects a:hover .desc { color: var(--text); }
+  }
+
+  .projects .name {
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.85rem;
+    width: 10.5rem;
+    flex-shrink: 0;
+  }
+  .projects .desc {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    transition: color 150ms ease;
+  }
+  .projects .desc b { color: var(--text); font-weight: 500; }
+
+  @media (max-width: 540px) {
+    .projects a { flex-direction: column; gap: 0.1rem; padding: 0.5rem 0; }
+    .projects .name { width: auto; }
+  }
+
+  /* ── footer ─────────────────────────────────────── */
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  footer a {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    footer a:hover { color: var(--accent); }
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.1em;
+    background: var(--accent);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="in">
+    <h1>mks<span class="tld">.sh</span><span class="cursor"></span></h1>
+    <p class="role">senior software engineering lead @ <a href="https://www.linkedin.com/in/mks01/">intellect</a></p>
+  </header>
+
+  <section class="in">
+    <p class="prompt"><span class="cmd">whoami</span></p>
+    <div class="output">
+      <p class="bio">
+        I lead mobile engineering @ intellect by day. When the house goes
+        quiet — the 1–3 AM ghost hours — I teach everyday tech tricks it was
+        never sold with. Weekends bring new ideas; the survivors ship below.
+      </p>
+      <div class="tags">
+        <span class="tag">m0b1l3</span>
+        <span class="tag">s3cur1ty</span>
+        <span class="tag">71nk3r3r</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="in">
+    <p class="prompt"><span class="cmd">ls ~/weekend-hacks</span></p>
+    <ul class="output projects">
+      <li>
+        <a href="https://github.com/MKS-01/readback">
+          <span class="name">readback</span>
+          <p class="desc">turn any <b>article into an audiobook</b> — paste a URL, listen on-device. 100% offline on Apple Silicon.</p>
+        </a>
+      </li>
+      <li>
+        <a href="https://github.com/MKS-01/pizow">
+          <span class="name">pizow</span>
+          <p class="desc">turn a <b>$15 Pi Zero into a home server</b> — deploy scripts, live dashboards, NAS.</p>
+        </a>
+      </li>
+      <li>
+        <a href="https://github.com/MKS-01/mac-mlx-cluster">
+          <span class="name">mac-mlx-cluster</span>
+          <p class="desc">turn a <b>spare Mac into a GPU</b> — LLM serving and clustering on Apple Silicon, powered by MLX.</p>
+        </a>
+      </li>
+      <li>
+        <a href="https://github.com/MKS-01/mobile-recon">
+          <span class="name">mobile-recon</span>
+          <p class="desc">turn a <b>lab phone into a target</b> — AI-assisted security recon CLI for Android, iOS &amp; their networks.</p>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <footer class="in">
+    <span>$ echo $CONTACT → <a href="https://github.com/MKS-01">github</a> · <a href="https://www.linkedin.com/in/mks01/">linkedin</a></span>
+    <span>$ exit — see you in the ghost hours ☕</span>
+  </footer>
+</main>
+</body>
+</html>
