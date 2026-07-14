@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MKS — coffee → code → tinker → repeat</title>
 <meta name="description" content="MKS — mobile, security, tinkerer. Old curiosities, new experiments — held together with duct tape and caffeine.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👽</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><path fill='%2358A6FF' d='M64,4.5C36.2,4.5,8,28.1,8,55.8s44.3,67.7,56.2,67.7c13.2,0,55.8-39.9,55.8-67.7S91.8,4.5,64,4.5z'/><path fill='%2358A6FF' d='M64,4.5c14.52,0,29.13,6.42,39.8,16.5C93,9.46,77.17,2,61.47,2c-27.8,0-56,23.6-56,51.3c0,15.6,14.06,35.11,28.47,49.18C20.46,88.64,8,70.49,8,55.8C8,28.1,36.2,4.5,64,4.5z'/><path fill='%230D1117' d='M64,102.35c-9.37,0-16.06-5.52-18.07-8.58c-0.76-0.98-0.92-2.31-0.41-3.44c0.39-0.74,1.17-1.18,2-1.15c0.3,0,0.6,0.05,0.88,0.15C53.1,90.8,57.23,93,64,93s10.92-2.16,15.63-3.63c0.28-0.1,0.58-0.15,0.88-0.15c0.83-0.03,1.61,0.41,2,1.15c0.51,1.13,0.35,2.46-0.41,3.44C80.06,96.83,73.37,102.35,64,102.35z M54.05,81.56c-3,3.88-17.71,3.89-28.85-6.36c-10.09-9.28-9.46-25.64-6.13-28.94s19.19-3.38,28.85,6.36S57.72,77.92,54.05,81.56z M80.08,52.58c9.66-9.7,25.52-9.62,28.85-6.33s3.53,19.11-6.13,28.8S77.64,85,73.94,81.38S70.42,62.28,80.08,52.58z'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,7 +22,10 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { scrollbar-gutter: stable; }
+  html {
+    scrollbar-gutter: stable;
+    scroll-snap-type: y mandatory;
+  }
 
   body {
     background: var(--bg);
@@ -31,16 +34,20 @@
     font-size: 14px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100dvh;
   }
 
-  main {
+  /* ── screens: one snap-stop per scroll ──────────── */
+  .screen {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: start;
+    padding: 3rem 1.5rem;
+  }
+  .screen > .inner {
     width: 100%;
     max-width: 720px;
-    padding: 3rem 1.5rem;
   }
 
   /* ── terminal print entrance ────────────────────── */
@@ -51,6 +58,10 @@
     animation-delay: calc(var(--i, 0) * 55ms);
   }
 
+  /* below-the-fold screens hold their output until scrolled into view */
+  .reveal .in { animation-play-state: paused; }
+  .reveal.on .in { animation-play-state: running; }
+
   @keyframes printIn {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -59,6 +70,7 @@
   @media (prefers-reduced-motion: reduce) {
     .in { animation-duration: 1ms; transform: none; }
     .cursor { animation: none; }
+    .hint .down { animation: none; }
   }
 
   /* ── header ─────────────────────────────────────── */
@@ -69,7 +81,12 @@
     color: var(--text);
   }
   header h1 .tld { color: var(--text-faint); font-weight: 400; }
-  header h1 .alien { font-size: 1.6rem; margin-right: 0.25rem; }
+  header h1 .alien {
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-right: 0.4rem;
+    vertical-align: -0.14em;
+  }
 
   .role {
     margin-top: 0.5rem;
@@ -90,7 +107,11 @@
     content: "$ ";
     color: var(--green);
   }
+  .prompt, .cmdline { overflow-wrap: anywhere; }
   .prompt .cmd { color: var(--text); }
+
+  .screen .inner > section:first-child .prompt,
+  .detail-screen .prompt { margin-top: 0; }
 
   .output {
     margin-top: 0.75rem;
@@ -150,6 +171,348 @@
     .projects .name { width: auto; }
   }
 
+  /* ── left column caps so text clears the fixed mac ─ */
+  .home .inner { max-width: 940px; }
+  .home .content,
+  .detail-screen .content { max-width: 540px; }
+
+  /* ── the mac: fixed on the right across all screens.
+     Lid swings open once you scroll off the top, folds shut
+     when you come back; the app on screen follows the scroll. */
+  .mac {
+    position: fixed;
+    top: 50%;
+    left: calc(50% + 90px);
+    transform: translateY(-50%);
+    width: 400px;
+    perspective: 1100px;
+    z-index: 5;
+    opacity: 0;
+    animation: fadeIn 500ms var(--ease-out) 900ms both;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .mac .lid {
+    position: relative;
+    box-sizing: border-box;
+    width: 360px;
+    height: 232px;
+    margin: 0 auto;
+    border: 2px solid var(--text-faint);
+    border-radius: 12px;
+    background: rgba(139, 148, 158, 0.05);
+    padding-top: 16px;
+    transform-origin: bottom center;
+    transform: rotateX(-84deg);
+    transition: transform 900ms var(--ease-out);
+    will-change: transform;
+  }
+  .mac.open .lid { transform: rotateX(0); }
+  .mac .cam {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--text-faint);
+    margin: 0 auto;
+  }
+  .mac .base {
+    position: relative;
+    width: 400px;
+    height: 10px;
+    border-radius: 5px;
+    background: var(--text-faint);
+  }
+  .mac .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 4.5px;
+    background: var(--bg);
+    border-radius: 0 0 5px 5px;
+  }
+
+  /* apps on the mac screen — one per section, crossfade on scroll */
+  .mac .app {
+    position: absolute;
+    left: 34px;
+    right: 34px;
+    top: 48px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+    pointer-events: none;
+  }
+  .mac[data-app="home"] .app-home,
+  .mac[data-app="readback"] .app-readback,
+  .mac[data-app="pizow"] .app-pizow,
+  .mac[data-app="mac-mlx-cluster"] .app-mlx {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* home app: terminal lines print in after the lid opens */
+  .mac .tline {
+    height: 5px;
+    border-radius: 2.5px;
+    margin-bottom: 12px;
+    width: var(--w, 60%);
+    background: var(--c, var(--text-dim));
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+  .mac .tline.prompt-line {
+    background: linear-gradient(90deg, var(--green) 0 16px, transparent 16px 24px, var(--text-dim) 24px);
+  }
+  .mac .dcursor {
+    width: 8px;
+    height: 14px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 250ms ease;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  .mac.open[data-app="home"] .tline,
+  .mac.open[data-app="home"] .dcursor {
+    opacity: 1;
+    transition-delay: calc(450ms + var(--n, 0) * 100ms);
+  }
+  /* mobile: the mac docks at the bottom of the viewport, scaled down —
+     but only on the project screens; home stays a clean terminal. */
+  @media (max-width: 1020px) {
+    .mac {
+      top: auto;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.75);
+      transform-origin: bottom center;
+      animation: none;
+      opacity: 1;
+      transition: opacity 300ms var(--ease-out);
+    }
+    .mac[data-app="home"] { opacity: 0; }
+    .detail-screen { padding-bottom: 220px; }
+  }
+  @media (max-width: 440px) {
+    .mac { transform: translateX(-50%) scale(0.68); }
+    .detail-screen { padding-bottom: 200px; }
+  }
+
+  /* ── scroll progress rail ───────────────────────── */
+  .rail {
+    position: fixed;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    z-index: 10;
+  }
+  .rail a {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--text-faint);
+    opacity: 0.55;
+    transition: background 200ms var(--ease-out), opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
+  }
+  .rail a:hover { opacity: 1; }
+  .rail a.active {
+    background: var(--accent);
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  @media (max-width: 540px) {
+    .rail { right: 0.55rem; gap: 0.6rem; }
+    .rail a { width: 6px; height: 6px; }
+  }
+
+  /* ── project detail screens ─────────────────────── */
+  .detail-screen .inner {
+    max-width: 940px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3.5rem;
+  }
+  .detail-screen .content { flex: 1; min-width: 0; }
+
+  /* ── live demos (rendered inside the mac screen) ── */
+  .pane-title {
+    color: var(--text-faint);
+    font-size: 0.7rem;
+    margin-bottom: 0.9rem;
+  }
+  .pane-title b { color: var(--text-dim); font-weight: 500; }
+
+  /* readback: playing */
+  .wave {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 42px;
+    margin-bottom: 1rem;
+  }
+  .wave i {
+    flex: 1;
+    height: var(--h, 60%);
+    background: var(--accent);
+    opacity: 0.7;
+    border-radius: 2px;
+    transform-origin: bottom;
+    animation: eq var(--t, 1s) ease-in-out var(--d, 0s) infinite alternate;
+  }
+  @keyframes eq {
+    from { transform: scaleY(0.2); }
+    to   { transform: scaleY(1); }
+  }
+  .pbar {
+    height: 4px;
+    background: rgba(139, 148, 158, 0.18);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .pbar i {
+    display: block;
+    height: 100%;
+    width: 37%;
+    background: var(--accent);
+    animation: fill 45s linear infinite;
+  }
+  @keyframes fill { from { width: 0; } to { width: 100%; } }
+  .ptime {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.3rem;
+    color: var(--text-faint);
+    font-size: 0.68rem;
+  }
+  .track {
+    margin-top: 0.7rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .track .arrow { color: var(--green); margin-right: 0.4rem; }
+
+  /* pizow: monitor */
+  .gauge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.55rem;
+  }
+  .gauge .lbl { width: 2.8rem; color: var(--text-faint); }
+  .gauge .bar {
+    flex: 1;
+    height: 5px;
+    background: rgba(139, 148, 158, 0.18);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .gauge .bar i {
+    display: block;
+    height: 100%;
+    width: var(--lo, 30%);
+    background: var(--green);
+    animation: load var(--t, 3s) ease-in-out infinite alternate;
+  }
+  .gauge .bar i.hot { background: var(--accent); }
+  @keyframes load {
+    from { width: var(--lo, 30%); }
+    to   { width: var(--hi, 75%); }
+  }
+  .mac .meta {
+    margin-top: 0.9rem;
+    color: var(--text-faint);
+    font-size: 0.68rem;
+  }
+
+  /* mac-mlx-cluster: serving */
+  .kv { display: flex; gap: 0.8rem; margin-top: 0.4rem; }
+  .kv .k { width: 3.2rem; color: var(--text-faint); }
+  .type {
+    margin-top: 0.9rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    width: 24ch;
+    border-right: 0.45em solid var(--accent);
+    animation: typing 7s steps(24, end) infinite, caret 1.1s steps(1) infinite;
+  }
+  @keyframes typing {
+    0%   { width: 0; }
+    55%  { width: 24ch; }
+    100% { width: 24ch; }
+  }
+  @keyframes caret { 50% { border-color: transparent; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .type { width: 24ch; }
+    .mac * { animation: none !important; transition: none !important; }
+    .mac .lid { transform: none !important; }
+    .mac .tline, .mac .dcursor { opacity: 1 !important; }
+  }
+
+  .proj-title {
+    margin-top: 1rem;
+    color: var(--text-dim);
+    font-size: 1.05rem;
+  }
+  .proj-title .pname { color: var(--accent); font-weight: 600; }
+  .proj-title .sep { color: var(--text-faint); margin: 0 0.4rem; }
+  .proj-title b { color: var(--text); font-weight: 500; }
+
+  .points {
+    list-style: none;
+    margin-top: 1rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    max-width: 62ch;
+  }
+  .points li { padding: 0.2rem 0; }
+  .points .arrow { color: var(--text-faint); margin-right: 0.5rem; }
+  .points b { color: var(--text); font-weight: 500; }
+
+  .stack {
+    margin-top: 1.25rem;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+  }
+  .stack .label { color: var(--text); font-weight: 500; }
+  .stack .sep { color: var(--text-faint); margin: 0 0.3rem; }
+  .stack .dot { color: var(--text-faint); margin: 0 0.35rem; }
+
+  .cmdline {
+    margin-top: 1.5rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  .cmdline + .cmdline { margin-top: 0.4rem; }
+  .cmdline::before { content: "$ "; color: var(--green); }
+  .cmdline a { color: var(--accent); text-decoration: none; }
+  .cmdline .comment { color: var(--text-faint); }
+  @media (hover: hover) and (pointer: fine) {
+    .cmdline a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  }
+
+  /* ── scroll hint ────────────────────────────────── */
+  .hint {
+    margin-top: 2.5rem;
+    color: var(--text-faint);
+    font-size: 0.8rem;
+  }
+  .hint .down {
+    display: inline-block;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 50% { transform: translateY(3px); } }
+
   /* ── footer ─────────────────────────────────────── */
   footer {
     margin-top: 2.5rem;
@@ -181,63 +544,199 @@
   }
   @keyframes blink { 50% { opacity: 0; } }
 </style>
+<noscript><style>.reveal .in { animation-play-state: running; } .mac .lid { transform: none; } .mac .tline, .mac .dcursor { opacity: 1; }</style></noscript>
 </head>
 <body>
 <main>
-  <header class="in" style="--i:0">
-    <h1><span class="alien">👽</span> mks<span class="tld">.sh</span><span class="cursor"></span></h1>
-    <p class="role"><span class="k">m0b1l3</span><span class="sep">·</span><span class="k">s3cur1ty</span><span class="sep">·</span><span class="k">71nk3r3r</span></p>
-  </header>
+  <div class="screen home" id="home">
+    <div class="inner">
+      <div class="content">
+      <header class="in" style="--i:0">
+        <h1><svg class="alien" viewBox="0 0 128 128" aria-hidden="true"><path fill="var(--accent)" d="M64,4.5C36.2,4.5,8,28.1,8,55.8s44.3,67.7,56.2,67.7c13.2,0,55.8-39.9,55.8-67.7S91.8,4.5,64,4.5z"/><path fill="var(--accent)" d="M64,4.5c14.52,0,29.13,6.42,39.8,16.5C93,9.46,77.17,2,61.47,2c-27.8,0-56,23.6-56,51.3c0,15.6,14.06,35.11,28.47,49.18C20.46,88.64,8,70.49,8,55.8C8,28.1,36.2,4.5,64,4.5z"/><path fill="var(--bg)" d="M64,102.35c-9.37,0-16.06-5.52-18.07-8.58c-0.76-0.98-0.92-2.31-0.41-3.44c0.39-0.74,1.17-1.18,2-1.15c0.3,0,0.6,0.05,0.88,0.15C53.1,90.8,57.23,93,64,93s10.92-2.16,15.63-3.63c0.28-0.1,0.58-0.15,0.88-0.15c0.83-0.03,1.61,0.41,2,1.15c0.51,1.13,0.35,2.46-0.41,3.44C80.06,96.83,73.37,102.35,64,102.35z M54.05,81.56c-3,3.88-17.71,3.89-28.85-6.36c-10.09-9.28-9.46-25.64-6.13-28.94s19.19-3.38,28.85,6.36S57.72,77.92,54.05,81.56z M80.08,52.58c9.66-9.7,25.52-9.62,28.85-6.33s3.53,19.11-6.13,28.8S77.64,85,73.94,81.38S70.42,62.28,80.08,52.58z"/></svg> mks<span class="tld">.sh</span><span class="cursor"></span></h1>
+        <p class="role"><span class="k">m0b1l3</span><span class="sep">·</span><span class="k">s3cur1ty</span><span class="sep">·</span><span class="k">71nk3r3r</span></p>
+      </header>
 
-  <section>
-    <p class="prompt in" style="--i:1"><span class="cmd">whoami</span></p>
-    <div class="output">
-      <p class="bio in" style="--i:2">
-        <b>senior software engineering lead by day.</b><br>
-        tinkerer at heart — while awake: explore, build, break, repeat.
-      </p>
+      <section>
+        <p class="prompt in" style="--i:1"><span class="cmd">whoami</span></p>
+        <div class="output">
+          <p class="bio in" style="--i:2">
+            <b>senior software engineering lead by day.</b><br>
+            tinkerer at heart — while awake: explore, build, break, repeat.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <p class="prompt in" style="--i:3"><span class="cmd">ls ~/weekend-hacks</span></p>
+        <ul class="output projects">
+          <li class="in" style="--i:4">
+            <a href="https://github.com/MKS-01/readback">
+              <span class="name">readback</span>
+              <p class="desc">any article → <b>offline audiobook</b>, 100% on-device</p>
+            </a>
+          </li>
+          <li class="in" style="--i:5">
+            <a href="https://github.com/MKS-01/pizow">
+              <span class="name">pizow</span>
+              <p class="desc">$15 Pi Zero → <b>home server</b>, dashboards &amp; NAS</p>
+            </a>
+          </li>
+          <li class="in" style="--i:6">
+            <a href="https://github.com/MKS-01/mac-mlx-cluster">
+              <span class="name">mac-mlx-cluster</span>
+              <p class="desc">spare Mac → <b>LLM cluster</b>, powered by MLX</p>
+            </a>
+          </li>
+          <!-- <li class="in" style="--i:7">
+            <a href="https://github.com/MKS-01/mobile-recon">
+              <span class="name">mobile-recon</span>
+              <p class="desc">lab phone → <b>recon target</b>, AI-assisted security CLI</p>
+            </a>
+          </li> -->
+        </ul>
+      </section>
+
+      <section>
+        <p class="prompt in" style="--i:8"><span class="cmd">cat ~/now-reading</span></p>
+        <p class="output reading in" style="--i:9"><span class="arrow">›</span><b>The Visual MBA</b> — Jason Barron</p>
+      </section>
+
+      <footer>
+        <p class="footer-line in" style="--i:10">echo $SOCIALS <span class="sep">→</span> <a href="https://github.com/MKS-01">github</a> <span class="sep">·</span> <a href="https://www.linkedin.com/in/mks01/">linkedin</a></p>
+        <p class="signoff in" style="--i:11">brew install cold-brew japanese-iced <span class="comment"># required dependency ☕</span></p>
+      </footer>
+
+      <p class="hint in" style="--i:12"># scroll <span class="down">↓</span> for the long version</p>
+      </div>
+      <div class="mac open" data-app="home" aria-hidden="true">
+        <div class="lid">
+          <div class="cam"></div>
+          <div class="app app-home">
+            <div class="tline prompt-line" style="--w:38%;--n:0"></div>
+            <div class="tline" style="--w:62%;--n:1;--c:var(--accent)"></div>
+            <div class="tline" style="--w:78%;--n:2"></div>
+            <div class="tline" style="--w:50%;--n:3"></div>
+            <div class="tline" style="--w:70%;--n:4"></div>
+            <div class="tline" style="--w:42%;--n:5"></div>
+            <div class="dcursor" style="--n:6"></div>
+          </div>
+          <div class="app app-readback">
+            <p class="pane-title"><b>readback</b> · playing</p>
+            <div class="wave">
+              <i style="--h:45%;--t:.9s;--d:0s"></i><i style="--h:75%;--t:1.1s;--d:.15s"></i><i style="--h:60%;--t:.8s;--d:.3s"></i><i style="--h:90%;--t:1.2s;--d:.1s"></i><i style="--h:50%;--t:.95s;--d:.25s"></i><i style="--h:80%;--t:1.05s;--d:.05s"></i><i style="--h:65%;--t:.85s;--d:.35s"></i><i style="--h:95%;--t:1.15s;--d:.2s"></i><i style="--h:55%;--t:.9s;--d:.4s"></i><i style="--h:70%;--t:1s;--d:.12s"></i><i style="--h:85%;--t:.88s;--d:.28s"></i><i style="--h:48%;--t:1.08s;--d:.18s"></i><i style="--h:78%;--t:.92s;--d:.08s"></i><i style="--h:58%;--t:1.12s;--d:.32s"></i>
+            </div>
+            <div class="pbar"><i></i></div>
+            <p class="ptime"><span>02:41</span><span>07:15</span></p>
+            <p class="track"><span class="arrow">▶</span>attention-is-all-you-need</p>
+          </div>
+          <div class="app app-pizow">
+            <p class="pane-title"><b>pizow</b> · monitor</p>
+            <div class="gauge"><span class="lbl">cpu</span><div class="bar"><i style="--lo:20%;--hi:82%;--t:2.2s"></i></div></div>
+            <div class="gauge"><span class="lbl">temp</span><div class="bar"><i class="hot" style="--lo:42%;--hi:58%;--t:5s"></i></div></div>
+            <div class="gauge"><span class="lbl">mem</span><div class="bar"><i style="--lo:55%;--hi:68%;--t:3.6s"></i></div></div>
+            <div class="gauge"><span class="lbl">disk</span><div class="bar"><i style="--lo:34%;--hi:38%;--t:7s"></i></div></div>
+            <p class="meta">uptime 42d · nginx + pm2 · nas ok</p>
+          </div>
+          <div class="app app-mlx">
+            <p class="pane-title"><b>mlx</b> · serving</p>
+            <div class="kv"><span class="k">model</span><span>qwen-7b · 4-bit</span></div>
+            <div class="kv"><span class="k">nodes</span><span>2 macs · thunderbolt</span></div>
+            <div class="gauge"><span class="lbl">gpu</span><div class="bar"><i style="--lo:35%;--hi:92%;--t:1.8s"></i></div></div>
+            <p class="type">&gt; streaming ~38 tok/s…</p>
+          </div>
+        </div>
+        <div class="base"><i class="notch"></i></div>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <section>
-    <p class="prompt in" style="--i:3"><span class="cmd">ls ~/weekend-hacks</span></p>
-    <ul class="output projects">
-      <li class="in" style="--i:4">
-        <a href="https://github.com/MKS-01/readback">
-          <span class="name">readback</span>
-          <p class="desc">any article → <b>offline audiobook</b>, 100% on-device</p>
-        </a>
-      </li>
-      <li class="in" style="--i:5">
-        <a href="https://github.com/MKS-01/pizow">
-          <span class="name">pizow</span>
-          <p class="desc">$15 Pi Zero → <b>home server</b>, dashboards &amp; NAS</p>
-        </a>
-      </li>
-      <li class="in" style="--i:6">
-        <a href="https://github.com/MKS-01/mac-mlx-cluster">
-          <span class="name">mac-mlx-cluster</span>
-          <p class="desc">spare Mac → <b>LLM cluster</b>, powered by MLX</p>
-        </a>
-      </li>
-      <!-- <li class="in" style="--i:7">
-        <a href="https://github.com/MKS-01/mobile-recon">
-          <span class="name">mobile-recon</span>
-          <p class="desc">lab phone → <b>recon target</b>, AI-assisted security CLI</p>
-        </a>
-      </li> -->
-    </ul>
-  </section>
+  <div class="screen detail-screen reveal" id="readback">
+    <div class="inner">
+      <div class="content">
+      <p class="prompt in" style="--i:0"><span class="cmd">cat ~/weekend-hacks/readback/README.md</span></p>
+      <div class="output">
+        <p class="proj-title in" style="--i:1"><span class="pname">readback</span><span class="sep">—</span>any article → <b>offline audiobook</b></p>
+        <ul class="points">
+          <li class="in" style="--i:2"><span class="arrow">›</span>paste a URL — reader-mode cleans it, a voice reads it back</li>
+          <li class="in" style="--i:3"><span class="arrow">›</span>CSM-1B on MLX — voice cloning, all on Apple Silicon</li>
+          <li class="in" style="--i:4"><span class="arrow">›</span>no cloud, no API keys — your reading list stays yours</li>
+        </ul>
+        <p class="stack in" style="--i:5"><span class="label">stack</span> <span class="sep">→</span> mlx<span class="dot">·</span>csm-1b<span class="dot">·</span>fastapi<span class="dot">·</span>bun<span class="dot">·</span>ink</p>
+        <p class="cmdline in" style="--i:6">open <a href="https://mks-01.github.io/readback/">mks-01.github.io/readback</a> <span class="comment"># live demo</span></p>
+        <p class="cmdline in" style="--i:7">git clone <a href="https://github.com/MKS-01/readback">github.com/MKS-01/readback</a></p>
+      </div>
+      </div>
+    </div>
+  </div>
 
-  <section>
-    <p class="prompt in" style="--i:8"><span class="cmd">cat ~/now-reading</span></p>
-    <p class="output reading in" style="--i:9"><span class="arrow">›</span><b>The Visual MBA</b> — Jason Barron</p>
-  </section>
+  <div class="screen detail-screen reveal" id="pizow">
+    <div class="inner">
+      <div class="content">
+      <p class="prompt in" style="--i:0"><span class="cmd">cat ~/weekend-hacks/pizow/README.md</span></p>
+      <div class="output">
+        <p class="proj-title in" style="--i:1"><span class="pname">pizow</span><span class="sep">—</span>$15 Pi Zero W → <b>home server</b></p>
+        <ul class="points">
+          <li class="in" style="--i:2"><span class="arrow">›</span>deploy scripts — from a blank SD card to a running server</li>
+          <li class="in" style="--i:3"><span class="arrow">›</span>real-time monitoring dashboard, NAS, nginx + pm2 underneath</li>
+          <li class="in" style="--i:4"><span class="arrow">›</span>Claude Code skills to drive the whole thing hands-off</li>
+        </ul>
+        <p class="stack in" style="--i:5"><span class="label">stack</span> <span class="sep">→</span> pi zero w<span class="dot">·</span>node<span class="dot">·</span>next.js<span class="dot">·</span>nginx<span class="dot">·</span>pm2</p>
+        <p class="cmdline in" style="--i:6">git clone <a href="https://github.com/MKS-01/pizow">github.com/MKS-01/pizow</a></p>
+      </div>
+      </div>
+    </div>
+  </div>
 
-  <footer>
-    <p class="footer-line in" style="--i:10">echo $SOCIALS <span class="sep">→</span> <a href="https://github.com/MKS-01">github</a> <span class="sep">·</span> <a href="https://www.linkedin.com/in/mks01/">linkedin</a></p>
-    <p class="signoff in" style="--i:11">brew install cold-brew japanese-iced <span class="comment"># required dependency ☕</span></p>
-  </footer>
+  <div class="screen detail-screen reveal" id="mac-mlx-cluster">
+    <div class="inner">
+      <div class="content">
+      <p class="prompt in" style="--i:0"><span class="cmd">cat ~/weekend-hacks/mac-mlx-cluster/README.md</span></p>
+      <div class="output">
+        <p class="proj-title in" style="--i:1"><span class="pname">mac-mlx-cluster</span><span class="sep">—</span>spare Mac → <b>LLM cluster</b></p>
+        <ul class="points">
+          <li class="in" style="--i:2"><span class="arrow">›</span>turn a spare Mac into a GPU — LLM serving via MLX</li>
+          <li class="in" style="--i:3"><span class="arrow">›</span>chain Macs over Thunderbolt to run bigger models</li>
+          <li class="in" style="--i:4"><span class="arrow">›</span>built-in chatbot + coding agent — all offline</li>
+        </ul>
+        <p class="stack in" style="--i:5"><span class="label">stack</span> <span class="sep">→</span> mlx<span class="dot">·</span>typescript<span class="dot">·</span>bun<span class="dot">·</span>ink<span class="dot">·</span>thunderbolt</p>
+        <p class="cmdline in" style="--i:6">git clone <a href="https://github.com/MKS-01/mac-mlx-cluster">github.com/MKS-01/mac-mlx-cluster</a></p>
+      </div>
+      </div>
+    </div>
+  </div>
 </main>
+<nav class="rail" aria-label="sections">
+  <a href="#home" class="active" aria-label="home"></a>
+  <a href="#readback" aria-label="readback"></a>
+  <a href="#pizow" aria-label="pizow"></a>
+  <a href="#mac-mlx-cluster" aria-label="mac-mlx-cluster"></a>
+</nav>
+<script>
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); }
+      }
+    }, { threshold: 0.4 });
+    document.querySelectorAll(".reveal").forEach((s) => io.observe(s));
+
+    const rail = [...document.querySelectorAll(".rail a")];
+    const screens = [...document.querySelectorAll(".screen")];
+    const mac = document.querySelector(".mac");
+    const spy = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          const i = screens.indexOf(e.target);
+          rail.forEach((d, j) => d.classList.toggle("active", j === i));
+          if (mac) mac.dataset.app = e.target.id;
+        }
+      }
+    }, { threshold: 0.6 });
+    screens.forEach((s) => spy.observe(s));
+
+  } else {
+    document.querySelectorAll(".reveal").forEach((s) => s.classList.add("on"));
+  }
+</script>
 </body>
 </html>
