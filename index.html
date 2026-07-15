@@ -284,7 +284,7 @@
   @media (max-width: 1020px) {
     .mac {
       top: auto;
-      bottom: 10px;
+      bottom: calc(30px + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%) scale(0.75);
       transform-origin: bottom center;
@@ -293,11 +293,11 @@
       transition: opacity 300ms var(--ease-out);
     }
     .mac[data-app="home"] { opacity: 0; }
-    .detail-screen { padding-bottom: 220px; }
+    .detail-screen { padding-bottom: 240px; }
   }
   @media (max-width: 440px) {
     .mac { transform: translateX(-50%) scale(0.68); }
-    .detail-screen { padding-bottom: 200px; }
+    .detail-screen { padding-bottom: 220px; }
   }
 
   /* ── scroll progress rail ───────────────────────── */
@@ -329,6 +329,20 @@
   @media (max-width: 540px) {
     .rail { right: 0.55rem; gap: 0.6rem; }
     .rail a { width: 6px; height: 6px; }
+  }
+
+  /* ── mobile: smaller type + tighter spacing so each screen
+     fits one viewport (bottom was clipping on Android) ────── */
+  @media (max-width: 540px) {
+    html { font-size: 13.5px; }
+    body { font-size: 12px; }
+    .screen { padding: 2rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); }
+    /* keep detail text clear of the docked mac (don't let the
+       shorthand above clobber the padding-bottom set earlier) */
+    .detail-screen { padding-bottom: calc(220px + env(safe-area-inset-bottom)); }
+    .prompt { margin-top: 1.9rem; }
+    footer { margin-top: 1.9rem; }
+    .hint { margin-top: 1.9rem; }
   }
 
   /* ── project detail screens ─────────────────────── */
