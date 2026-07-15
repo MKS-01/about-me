@@ -174,7 +174,7 @@
   /* ── left column caps so text clears the fixed mac ─ */
   .home .inner { max-width: 940px; }
   .home .content,
-  .detail-screen .content { max-width: 540px; }
+  .detail-screen .content { max-width: 500px; }
 
   /* ── the mac: fixed on the right across all screens.
      Lid swings open once you scroll off the top, folds shut
@@ -248,7 +248,9 @@
   .mac[data-app="home"] .app-home,
   .mac[data-app="readback"] .app-readback,
   .mac[data-app="pizow"] .app-pizow,
-  .mac[data-app="mac-mlx-cluster"] .app-mlx {
+  .mac[data-app="mac-mlx-cluster"] .app-mlx,
+  .mac[data-app="mobile-recon"] .app-recon,
+  .mac[data-app="wip"] .app-wip {
     opacity: 1;
     transform: none;
   }
@@ -466,6 +468,47 @@
   }
   @keyframes caret { 50% { border-color: transparent; } }
 
+  /* wip: fresh prompt — git init cycles project names, prompt waits */
+  .app-wip .wline {
+    line-height: 1.5;
+    margin-bottom: 7px;
+    white-space: nowrap;
+    color: var(--text-dim);
+  }
+  .app-wip .g { color: var(--green); }
+  .app-wip .faint { color: var(--text-faint); }
+  .app-wip .cycle {
+    display: inline-block;
+    height: 1.5em;
+    line-height: 1.5em;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+  .app-wip .names {
+    display: block;
+    animation: wipNames 8.8s steps(1) infinite;
+  }
+  .app-wip .names span {
+    display: block;
+    height: 1.5em;
+    color: var(--accent);
+  }
+  @keyframes wipNames {
+    0%,   22%  { transform: translateY(0); }
+    25%,  47%  { transform: translateY(-1.5em); }
+    50%,  72%  { transform: translateY(-3em); }
+    75%,  97%  { transform: translateY(-4.5em); }
+    100%       { transform: translateY(0); }
+  }
+  .app-wip .wcursor {
+    display: inline-block;
+    width: 7px;
+    height: 1em;
+    background: var(--accent);
+    vertical-align: -0.15em;
+    animation: blink 1.1s steps(1) infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .type { width: 24ch; }
     .mac * { animation: none !important; transition: none !important; }
@@ -473,34 +516,32 @@
     .mac .tline, .mac .dcursor { opacity: 1 !important; }
   }
 
-  .proj-title {
-    margin-top: 1rem;
-    color: var(--text-dim);
-    font-size: 1.05rem;
+  /* man-page layout for project READMEs */
+  .man-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    color: var(--text-faint);
+    font-size: 0.75rem;
   }
-  .proj-title .pname { color: var(--accent); font-weight: 600; }
-  .proj-title .sep { color: var(--text-faint); margin: 0 0.4rem; }
-  .proj-title b { color: var(--text); font-weight: 500; }
+  .man-sec {
+    margin-top: 1.2rem;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
 
-  .points {
-    list-style: none;
-    margin-top: 1rem;
+  .man-body {
+    margin-top: 0.2rem;
+    padding-left: 2ch;
     color: var(--text-dim);
     font-size: 0.85rem;
-    max-width: 62ch;
+    max-width: 58ch;
   }
-  .points li { padding: 0.2rem 0; }
-  .points .arrow { color: var(--text-faint); margin-right: 0.5rem; }
-  .points b { color: var(--text); font-weight: 500; }
-
-  .stack {
-    margin-top: 1.25rem;
-    color: var(--text-dim);
-    font-size: 0.8rem;
-  }
-  .stack .label { color: var(--text); font-weight: 500; }
-  .stack .sep { color: var(--text-faint); margin: 0 0.3rem; }
-  .stack .dot { color: var(--text-faint); margin: 0 0.35rem; }
+  .man-body .pname { color: var(--accent); font-weight: 600; }
+  .man-body b { color: var(--text); font-weight: 500; }
 
   .cmdline {
     margin-top: 1.5rem;
@@ -508,6 +549,8 @@
     font-size: 0.85rem;
   }
   .cmdline + .cmdline { margin-top: 0.4rem; }
+  .man-body .cmdline { margin-top: 0; }
+  .man-body .cmdline + .cmdline { margin-top: 0.3rem; }
   .cmdline::before { content: "$ "; color: var(--green); }
   .cmdline a { color: var(--accent); text-decoration: none; }
   .cmdline .comment { color: var(--text-faint); }
@@ -601,12 +644,12 @@
               <p class="desc">spare Mac → <b>LLM cluster</b>, powered by MLX</p>
             </a>
           </li>
-          <!-- <li class="in" style="--i:7">
+          <li class="in" style="--i:7">
             <a href="https://github.com/MKS-01/mobile-recon">
               <span class="name">mobile-recon</span>
               <p class="desc">lab phone → <b>recon target</b>, AI-assisted security CLI</p>
             </a>
-          </li> -->
+          </li>
         </ul>
       </section>
 
@@ -658,6 +701,19 @@
             <div class="gauge"><span class="lbl">gpu</span><div class="bar"><i style="--lo:35%;--hi:92%;--t:1.8s"></i></div></div>
             <p class="type">&gt; streaming ~38 tok/s…</p>
           </div>
+          <div class="app app-recon">
+            <p class="pane-title"><b>mobile-recon</b> · scanning</p>
+            <div class="kv"><span class="k">device</span><span>pixel-4a · adb</span></div>
+            <div class="kv"><span class="k">net</span><span>192.168.1.0/24 · nmap</span></div>
+            <div class="gauge"><span class="lbl">scan</span><div class="bar"><i style="--lo:15%;--hi:88%;--t:2.6s"></i></div></div>
+            <p class="type">&gt; 12 findings · 3 hosts…</p>
+          </div>
+          <div class="app app-wip">
+            <p class="pane-title"><b>wip</b> · ~/weekend-hacks</p>
+            <p class="wline"><span class="g">$</span> git init <span class="cycle"><span class="names"><span>lora-mesh</span><span>robot-arm</span><span>offline-llm</span><span>next-thing</span></span></span></p>
+            <p class="wline faint">Initialized empty git repository</p>
+            <p class="wline"><span class="g">$</span> <span class="wcursor"></span></p>
+          </div>
         </div>
         <div class="base"><i class="notch"></i></div>
       </div>
@@ -667,17 +723,20 @@
   <div class="screen detail-screen reveal" id="readback">
     <div class="inner">
       <div class="content">
-      <p class="prompt in" style="--i:0"><span class="cmd">cat ~/weekend-hacks/readback/README.md</span></p>
+      <p class="prompt in" style="--i:0"><span class="cmd">man readback</span></p>
       <div class="output">
-        <p class="proj-title in" style="--i:1"><span class="pname">readback</span><span class="sep">—</span>any article → <b>offline audiobook</b></p>
-        <ul class="points">
-          <li class="in" style="--i:2"><span class="arrow">›</span>paste a URL — reader-mode cleans it, a voice reads it back</li>
-          <li class="in" style="--i:3"><span class="arrow">›</span>CSM-1B on MLX — voice cloning, all on Apple Silicon</li>
-          <li class="in" style="--i:4"><span class="arrow">›</span>no cloud, no API keys — your reading list stays yours</li>
-        </ul>
-        <p class="stack in" style="--i:5"><span class="label">stack</span> <span class="sep">→</span> mlx<span class="dot">·</span>csm-1b<span class="dot">·</span>fastapi<span class="dot">·</span>bun<span class="dot">·</span>ink</p>
-        <p class="cmdline in" style="--i:6">open <a href="https://mks-01.github.io/readback/">mks-01.github.io/readback</a> <span class="comment"># live demo</span></p>
-        <p class="cmdline in" style="--i:7">git clone <a href="https://github.com/MKS-01/readback">github.com/MKS-01/readback</a></p>
+        <p class="man-head in" style="--i:1"><span>READBACK(1)</span><span>Weekend Hacks Manual</span></p>
+        <p class="man-sec in" style="--i:2">NAME</p>
+        <p class="man-body in" style="--i:3"><span class="pname">readback</span> — any article → <b>offline audiobook</b></p>
+        <p class="man-sec in" style="--i:4">DESCRIPTION</p>
+        <p class="man-body in" style="--i:5">Paste a URL. Reader-mode strips the junk, CSM-1B on MLX reads it back in a cloned voice — all on Apple Silicon. No cloud, no API keys; your reading list stays yours.</p>
+        <p class="man-sec in" style="--i:6">STACK</p>
+        <p class="man-body in" style="--i:7"><b>mlx</b>(1), <b>csm-1b</b>(1), <b>fastapi</b>(1), <b>bun</b>(1), <b>ink</b>(1)</p>
+        <p class="man-sec in" style="--i:8">SEE ALSO</p>
+        <div class="man-body">
+          <p class="cmdline in" style="--i:9">open <a href="https://mks-01.github.io/readback/">mks-01.github.io/readback</a> <span class="comment"># live demo</span></p>
+          <p class="cmdline in" style="--i:10">git clone <a href="https://github.com/MKS-01/readback">github.com/MKS-01/readback</a></p>
+        </div>
       </div>
       </div>
     </div>
@@ -686,16 +745,19 @@
   <div class="screen detail-screen reveal" id="pizow">
     <div class="inner">
       <div class="content">
-      <p class="prompt in" style="--i:0"><span class="cmd">cat ~/weekend-hacks/pizow/README.md</span></p>
+      <p class="prompt in" style="--i:0"><span class="cmd">man pizow</span></p>
       <div class="output">
-        <p class="proj-title in" style="--i:1"><span class="pname">pizow</span><span class="sep">—</span>$15 Pi Zero W → <b>home server</b></p>
-        <ul class="points">
-          <li class="in" style="--i:2"><span class="arrow">›</span>deploy scripts — from a blank SD card to a running server</li>
-          <li class="in" style="--i:3"><span class="arrow">›</span>real-time monitoring dashboard, NAS, nginx + pm2 underneath</li>
-          <li class="in" style="--i:4"><span class="arrow">›</span>Claude Code skills to drive the whole thing hands-off</li>
-        </ul>
-        <p class="stack in" style="--i:5"><span class="label">stack</span> <span class="sep">→</span> pi zero w<span class="dot">·</span>node<span class="dot">·</span>next.js<span class="dot">·</span>nginx<span class="dot">·</span>pm2</p>
-        <p class="cmdline in" style="--i:6">git clone <a href="https://github.com/MKS-01/pizow">github.com/MKS-01/pizow</a></p>
+        <p class="man-head in" style="--i:1"><span>PIZOW(1)</span><span>Weekend Hacks Manual</span></p>
+        <p class="man-sec in" style="--i:2">NAME</p>
+        <p class="man-body in" style="--i:3"><span class="pname">pizow</span> — $15 Pi Zero W → <b>home server</b></p>
+        <p class="man-sec in" style="--i:4">DESCRIPTION</p>
+        <p class="man-body in" style="--i:5">Deploy scripts take a blank SD card to a running server: real-time monitoring dashboard and NAS, nginx + pm2 underneath. Claude Code skills drive the whole thing hands-off.</p>
+        <p class="man-sec in" style="--i:6">STACK</p>
+        <p class="man-body in" style="--i:7"><b>pi-zero-w</b>(4), <b>node</b>(1), <b>next.js</b>(1), <b>nginx</b>(8), <b>pm2</b>(1)</p>
+        <p class="man-sec in" style="--i:8">SEE ALSO</p>
+        <div class="man-body">
+          <p class="cmdline in" style="--i:9">git clone <a href="https://github.com/MKS-01/pizow">github.com/MKS-01/pizow</a></p>
+        </div>
       </div>
       </div>
     </div>
@@ -704,16 +766,51 @@
   <div class="screen detail-screen reveal" id="mac-mlx-cluster">
     <div class="inner">
       <div class="content">
-      <p class="prompt in" style="--i:0"><span class="cmd">cat ~/weekend-hacks/mac-mlx-cluster/README.md</span></p>
+      <p class="prompt in" style="--i:0"><span class="cmd">man mac-mlx-cluster</span></p>
       <div class="output">
-        <p class="proj-title in" style="--i:1"><span class="pname">mac-mlx-cluster</span><span class="sep">—</span>spare Mac → <b>LLM cluster</b></p>
-        <ul class="points">
-          <li class="in" style="--i:2"><span class="arrow">›</span>turn a spare Mac into a GPU — LLM serving via MLX</li>
-          <li class="in" style="--i:3"><span class="arrow">›</span>chain Macs over Thunderbolt to run bigger models</li>
-          <li class="in" style="--i:4"><span class="arrow">›</span>built-in chatbot + coding agent — all offline</li>
-        </ul>
-        <p class="stack in" style="--i:5"><span class="label">stack</span> <span class="sep">→</span> mlx<span class="dot">·</span>typescript<span class="dot">·</span>bun<span class="dot">·</span>ink<span class="dot">·</span>thunderbolt</p>
-        <p class="cmdline in" style="--i:6">git clone <a href="https://github.com/MKS-01/mac-mlx-cluster">github.com/MKS-01/mac-mlx-cluster</a></p>
+        <p class="man-head in" style="--i:1"><span>MAC-MLX-CLUSTER(1)</span><span>Weekend Hacks Manual</span></p>
+        <p class="man-sec in" style="--i:2">NAME</p>
+        <p class="man-body in" style="--i:3"><span class="pname">mac-mlx-cluster</span> — spare Mac → <b>LLM cluster</b></p>
+        <p class="man-sec in" style="--i:4">DESCRIPTION</p>
+        <p class="man-body in" style="--i:5">Turns a spare Mac into a GPU serving LLMs via MLX; chain Macs over Thunderbolt to run bigger models. Ships a chatbot and a coding agent — all offline.</p>
+        <p class="man-sec in" style="--i:6">STACK</p>
+        <p class="man-body in" style="--i:7"><b>mlx</b>(1), <b>typescript</b>(1), <b>bun</b>(1), <b>ink</b>(1), <b>thunderbolt</b>(4)</p>
+        <p class="man-sec in" style="--i:8">SEE ALSO</p>
+        <div class="man-body">
+          <p class="cmdline in" style="--i:9">git clone <a href="https://github.com/MKS-01/mac-mlx-cluster">github.com/MKS-01/mac-mlx-cluster</a></p>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen detail-screen reveal" id="mobile-recon">
+    <div class="inner">
+      <div class="content">
+      <p class="prompt in" style="--i:0"><span class="cmd">man mobile-recon</span></p>
+      <div class="output">
+        <p class="man-head in" style="--i:1"><span>MOBILE-RECON(1)</span><span>Weekend Hacks Manual</span></p>
+        <p class="man-sec in" style="--i:2">NAME</p>
+        <p class="man-body in" style="--i:3"><span class="pname">mobile-recon</span> — lab phone → <b>recon target</b></p>
+        <p class="man-sec in" style="--i:4">DESCRIPTION</p>
+        <p class="man-body in" style="--i:5">AI-assisted CLI for mobile security testing — Android, iOS and the networks they run on. ADB, static APK audits, Frida and nmap under one roof. Lab use only; test what you're authorized to.</p>
+        <p class="man-sec in" style="--i:6">STACK</p>
+        <p class="man-body in" style="--i:7"><b>go</b>(1), <b>adb</b>(1), <b>frida</b>(1), <b>nmap</b>(1)</p>
+        <p class="man-sec in" style="--i:8">SEE ALSO</p>
+        <div class="man-body">
+          <p class="cmdline in" style="--i:9">git clone <a href="https://github.com/MKS-01/mobile-recon">github.com/MKS-01/mobile-recon</a></p>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen detail-screen reveal" id="wip">
+    <div class="inner">
+      <div class="content">
+      <p class="prompt in" style="--i:0"><span class="cmd">ls ~/weekend-hacks/wip</span></p>
+      <div class="output">
+        <p class="reading in" style="--i:1"><span class="arrow">›</span>still a few unfinished weekend projects — updating soon<span class="cursor"></span></p>
       </div>
       </div>
     </div>
@@ -724,6 +821,8 @@
   <a href="#readback" aria-label="readback"></a>
   <a href="#pizow" aria-label="pizow"></a>
   <a href="#mac-mlx-cluster" aria-label="mac-mlx-cluster"></a>
+  <a href="#mobile-recon" aria-label="mobile-recon"></a>
+  <a href="#wip" aria-label="wip"></a>
 </nav>
 <script>
   if ("IntersectionObserver" in window) {
