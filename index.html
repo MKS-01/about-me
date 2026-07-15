@@ -844,7 +844,11 @@
           if (mac) mac.dataset.app = e.target.id;
         }
       }
-    }, { threshold: 0.6 });
+      /* center-line detector: fires when a screen crosses the viewport's
+         vertical middle, regardless of its height. A plain area threshold
+         (e.g. 0.6) silently skips on mobile, where detail screens run
+         taller than the viewport thanks to the mac's reserved padding. */
+    }, { rootMargin: "-50% 0px -50% 0px", threshold: 0 });
     screens.forEach((s) => spy.observe(s));
 
   } else {
