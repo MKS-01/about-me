@@ -143,9 +143,15 @@ proposing alternatives):
   lid open no effect on first load"). Do not reintroduce any lid motion.
   The closed-lid CSS (`rotateX(-84deg)` without `.open`) still exists but
   must never be user-visible.
-- **Scroll progress rail**: fixed right-edge `nav.rail` of small square
-  anchors, one per screen; active one is accent + scaled. Driven by the
-  same observer; visible at every width (smaller under 540px).
+- **Section nav is a tmux status bar** (`nav.rail`, restyled July 2026):
+  thin bar pinned to the bottom edge, `[mks]` session name in green, each
+  screen a numbered window (`0:home* 1:readback …`), active one accent +
+  starred (star width is pre-reserved so the bar never shifts). Driven by
+  the same observer. `© year mks` (`.site-foot`) lives in its right corner
+  like tmux right-status; session name + © hide ≤640px, tighter gap/font
+  ≤440px (fits 360px), safe-area padded. It replaced a right-edge rail of
+  square dots — chosen by the owner over vim-statusline, prompt-history
+  rail, and ASCII scrollbar options.
 - **Mobile (≤1020px)**: the mac docks `position: fixed; bottom` centered,
   scaled 0.75 (0.68 ≤440px), and is hidden (`opacity: 0`) while
   `data-app="home"` so the landing stays a clean terminal; detail screens
@@ -158,7 +164,13 @@ emoji glyphs — built, then reverted ("not looking good"); static ASCII flow
 diagrams — rejected unseen ("too boring"); bordered tmux-style demo panes
 beside each project — loved ("damm this looks coool") but later folded into
 the mac's screen at the owner's idea. Lesson: filler must be *alive and
-specific to the project*, not decorative.
+specific to the project*, not decorative. Cold-brew glass beside the mac
+(CSS-drawn tumbler, floating ice, level dropped + ice melted with scroll) —
+iterated through many rounds (icons → big cubes → bottom pile → floating
+per physics; brown → darker brown → accent blue) and ultimately **removed**:
+owner felt coffee "doesn't fit the theme" and cut it even in on-palette
+blue. Don't re-propose desk props next to the mac; the footer's
+`brew install cold-brew` pun carries the coffee joke alone.
 
 ## Content voice — hard-won rules
 
