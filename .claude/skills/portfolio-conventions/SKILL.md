@@ -152,11 +152,39 @@ proposing alternatives):
   ≤440px (fits 360px), safe-area padded. It replaced a right-edge rail of
   square dots — chosen by the owner over vim-statusline, prompt-history
   rail, and ASCII scrollbar options.
+- **Nav taps are JS-driven, not raw `#hash` jumps.** Hash anchors fight
+  `scroll-snap-type: mandatory` on iOS Safari (taps land on the wrong
+  screen / snap back — reported as "footer navigation buggy"; Android is
+  fine). The script intercepts every `a[href^="#"]` click, sets
+  `scrollSnapType = "none"`, drives a `scrollIntoView({behavior:"smooth"})`,
+  updates the hash via `replaceState`, and restores snap on the `scrollend`
+  event (iOS 16.4+) with a 1200ms timeout fallback. Don't revert to bare
+  anchors. Bar links are `align-self: stretch` (fill the 28px strip height)
+  because a text-height target is too thin in iOS's bottom gesture zone.
 - **Mobile (≤1020px)**: the mac docks `position: fixed; bottom` centered,
   scaled 0.75 (0.68 ≤440px), and is hidden (`opacity: 0`) while
   `data-app="home"` so the landing stays a clean terminal; detail screens
-  get `padding-bottom: 220px` so text clears it. The desktop `fadeIn`
+  get `padding-bottom: 240px` so text clears it. The desktop `fadeIn`
   entrance is replaced by an opacity transition in this mode.
+- **Short-viewport mac tiers (learned the hard way).** iOS Safari with
+  scroll-snap **rarely collapses its URL bar**, so iPhones sit permanently
+  at ~620–760px viewport *height* — a plain `max-height:700px { .mac
+  opacity:0 }` rule removed the mac from iOS entirely while Android (which
+  does collapse its toolbar → taller heights) kept it. Owner: "you removed
+  the mac only from mobile, iOS specially". Correct shape is height tiers,
+  not hide-or-show: **>760px** full mac (pad 240); **660–760px** half-scale
+  mac (`scale(0.5)`, docked closer, pad 160) — the common iPhone state;
+  **<660px** hidden (pad 3rem) for tiny/landscape only. Verify overlap by
+  probing `.content` bottom vs `.mac` top at 573/660/673/760/790/853px.
+- **Modern mobile viewport handling** (added July 2026): `<meta
+  viewport-fit=cover>` is REQUIRED — without it iOS reports every
+  `env(safe-area-inset-*)` as 0 and all the safe-area padding silently
+  no-ops. Screens use `min-height:100vh` then `100dvh` (dvh fallback for
+  pre-2022 browsers; dvh re-evaluates as the toolbar collapses/expands).
+  The tmux bar, `.site-foot`, and docked mac all pad by
+  `env(safe-area-inset-bottom)`; bar side padding uses
+  `max(1rem, env(safe-area-inset-left/right))` to clear notch corners in
+  landscape.
 - Reduced motion: lid always open, apps swap instantly, all loops off.
 
 **Design history for the right side (don't re-propose losers):** giant faint
