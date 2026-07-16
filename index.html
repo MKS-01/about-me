@@ -352,18 +352,25 @@
     .screen { padding: 2rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); }
     /* keep detail text clear of the docked mac (don't let the
        shorthand above clobber the padding-bottom set earlier) */
-    .detail-screen { padding-bottom: calc(220px + env(safe-area-inset-bottom)); }
+    .detail-screen { padding-bottom: calc(240px + env(safe-area-inset-bottom)); }
     .prompt { margin-top: 1.9rem; }
     footer { margin-top: 1.9rem; }
     .hint { margin-top: 1.9rem; }
   }
 
-  /* short mobile viewports (Safari URL bar expanded, landscape phones):
-     a man page + the docked mac don't both fit, and the mac was drawing
-     over the content. The mac yields — fades out and returns its
-     reserved space — same behavior it already has on the home screen.
-     dvh re-evaluates this as the browser toolbar collapses/expands. */
-  @media (max-width: 1020px) and (max-height: 700px) {
+  /* short mobile viewports: a man page + the full-size docked mac don't
+     both fit, and the mac was drawing over the content. NOTE: iOS Safari
+     with scroll-snap rarely collapses its URL bar, so most iPhones live
+     at ~620-760px viewport height permanently — the mac must still show
+     there, just smaller. Only truly tiny viewports lose it. */
+  @media (max-width: 1020px) and (max-height: 760px) {
+    .mac {
+      transform: translateX(-50%) scale(0.5);
+      bottom: calc(30px + env(safe-area-inset-bottom));
+    }
+    .detail-screen { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width: 1020px) and (max-height: 660px) {
     .mac { opacity: 0; }
     .detail-screen { padding-bottom: calc(3rem + env(safe-area-inset-bottom)); }
   }
