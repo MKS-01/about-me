@@ -93,8 +93,12 @@ Always test the short-viewport and safe-area cases, not just a tall phone.
 - **Commit directly to `main`** (this repo's pattern) only when the owner
   says so; then `git push` — the live site is GitHub Pages off `main`, so
   nothing reaches the owner's phone until pushed.
-- Commit message co-author trailer:
-  `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`
+- Commit message co-author trailer names **whichever model actually wrote
+  the commit**, not a fixed one:
+  `Co-Authored-By: Claude <model> <noreply@anthropic.com>`
+  e.g. `Claude Opus 4.8`, `Claude Fable 5`. This line used to hardcode
+  Fable 5 and went stale the first time another model worked here —
+  signing a different model's name is a small lie in the commit log.
 - For subjective/creative choices (copy, layout style, colors) present 2–4
   concrete options via AskUserQuestion — this owner consistently prefers
   picking from real options over open-ended prose.
