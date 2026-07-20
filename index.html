@@ -9,33 +9,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <style>
-  :root {
-    --bg: #0d1117;
-    --text: #c9d1d9;
-    --text-dim: #8b949e;
-    --text-faint: #484f58;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  }
+  /* ── deck-only layout. Shared tokens + terminal grammar live in
+     style.css; everything below is unique to this page. ───────── */
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html {
-    scrollbar-gutter: stable;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 14px;
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-  }
+  /* Mandatory snap belongs to the deck ONLY — never move this into
+     style.css, it would wreck long-form scrolling on blog posts. */
+  html { scroll-snap-type: y mandatory; }
 
   /* ── screens: one snap-stop per scroll ──────────── */
   .screen {
@@ -52,92 +33,17 @@
     max-width: 720px;
   }
 
-  /* ── terminal print entrance ────────────────────── */
-  /* Each line prints in sequence, like a shell streaming output. */
-  .in {
-    opacity: 0;
-    animation: printIn 320ms var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 55ms);
-  }
-
   /* below-the-fold screens hold their output until scrolled into view */
   .reveal .in { animation-play-state: paused; }
   .reveal.on .in { animation-play-state: running; }
 
-  @keyframes printIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    .in { animation-duration: 1ms; transform: none; }
-    .cursor { animation: none; }
-    .hint .down { animation: none; }
-  }
-
-  /* ── header ─────────────────────────────────────── */
-  header h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-  header h1 .tld { color: var(--text-faint); font-weight: 400; }
-  header h1 .alien {
-    width: 1.6rem;
-    height: 1.6rem;
-    margin-right: 0.4rem;
-    vertical-align: -0.14em;
-  }
-
-  .role {
-    margin-top: 0.5rem;
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
-  .role a { color: var(--accent); text-decoration: none; }
-  .role .sep { color: var(--text-faint); margin: 0 0.4rem; }
-  .role .k { color: var(--accent); }
-
-  /* ── prompt lines ───────────────────────────────── */
-  .prompt {
-    margin-top: 2.5rem;
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
-  .prompt::before {
-    content: "$ ";
-    color: var(--green);
-  }
-  .prompt, .cmdline { overflow-wrap: anywhere; }
-  .prompt .cmd { color: var(--text); }
-
+  /* only the screen's FIRST prompt loses its top margin — the blog screen
+     runs two ($ ls ~/blog, then $ ls ~/weekend-hacks/wip) and the second
+     needs its normal rhythm to read as a separate command */
   .screen .inner > section:first-child .prompt,
-  .detail-screen .prompt { margin-top: 0; }
+  .detail-screen .content > .prompt:first-child { margin-top: 0; }
 
-  .output {
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-  }
-
-  /* ── whoami ─────────────────────────────────────── */
-  .bio {
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    max-width: 66ch;
-  }
-  .bio b { color: var(--text); font-weight: 500; }
-
-  /* ── now-reading ────────────────────────────────── */
-  .reading {
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
-  .reading .arrow { color: var(--text-faint); margin-right: 0.5rem; }
-  .reading b { color: var(--text); font-weight: 500; }
-
-  /* ── projects ───────────────────────────────────── */
+  /* ── projects + blog index (same two-column list shape) ── */
   .projects { list-style: none; }
 
   .projects a {
@@ -168,6 +74,9 @@
     transition: color 150ms ease;
   }
   .projects .desc b { color: var(--text); font-weight: 500; }
+  /* post slugs run longer than project names — widen that column so they
+     don't wrap mid-slug. Fits ~23 chars; keep slugs at or under that. */
+  #blog .projects .name { width: 12.5rem; }
 
   @media (max-width: 540px) {
     .projects a { flex-direction: column; gap: 0.1rem; padding: 0.5rem 0; }
@@ -180,8 +89,7 @@
   .detail-screen .content { max-width: 500px; }
 
   /* ── the mac: fixed on the right across all screens.
-     Lid swings open once you scroll off the top, folds shut
-     when you come back; the app on screen follows the scroll. */
+     Lid is hardcoded open; the app on screen follows the scroll. */
   .mac {
     position: fixed;
     top: 50%;
@@ -193,7 +101,6 @@
     opacity: 0;
     animation: fadeIn 500ms var(--ease-out) 900ms both;
   }
-  @keyframes fadeIn { to { opacity: 1; } }
   .mac .lid {
     position: relative;
     box-sizing: border-box;
@@ -252,8 +159,7 @@
   .mac[data-app="readback"] .app-readback,
   .mac[data-app="pizow"] .app-pizow,
   .mac[data-app="mac-mlx-cluster"] .app-mlx,
-  .mac[data-app="mobile-recon"] .app-recon,
-  .mac[data-app="wip"] .app-wip {
+  .mac[data-app="blog"] .app-blog {
     opacity: 1;
     transform: none;
   }
@@ -305,63 +211,13 @@
     .detail-screen { padding-bottom: 220px; }
   }
 
-  /* ── section nav: a tmux status bar pinned to the bottom edge.
-     Each screen is a "window"; the active one is accent + starred. */
-  .rail {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 1.1em;
-    height: calc(28px + env(safe-area-inset-bottom, 0px));
-    /* max() keeps the ends clear of notch corners in landscape */
-    padding: 0 max(1rem, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(1rem, env(safe-area-inset-left, 0px));
-    font-size: 12px;
-    background: #161b22;
-    opacity: 0;
-    animation: fadeIn 500ms var(--ease-out) 1300ms both;
-  }
-  .rail .sess { color: var(--green); }
-  .rail a {
-    /* fill the bar's full height so the whole strip above each label is
-       tappable — a text-height target is too thin in iOS's bottom zone */
-    display: inline-flex;
-    align-items: center;
-    align-self: stretch;
-    color: var(--text-dim);
-    text-decoration: none;
-    opacity: 0.7;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    transition: color 200ms var(--ease-out), opacity 200ms var(--ease-out);
-  }
-  .rail a::after { content: "*"; opacity: 0; }  /* reserved so the bar doesn't shift */
-  .rail a:hover { opacity: 1; color: var(--text); }
-  .rail a.active { color: var(--accent); opacity: 1; }
-  .rail a.active::after { opacity: 1; }
-  @media (max-width: 640px) {
-    .rail { gap: 0.8em; font-size: 11px; padding-left: 0.7rem; padding-right: 0.7rem; }
-    .rail .sess { display: none; }
-  }
-  @media (max-width: 440px) {
-    /* keeps all six windows on one line down to 360px-wide phones */
-    .rail { gap: 0.55em; font-size: 10.5px; padding-left: 0.55rem; padding-right: 0.55rem; }
-  }
-
-  /* ── mobile: smaller type + tighter spacing so each screen
-     fits one viewport (bottom was clipping on Android) ────── */
+  /* ── mobile: tighter spacing so each screen fits one viewport
+     (bottom was clipping on Android) ─────────────────────────── */
   @media (max-width: 540px) {
-    html { font-size: 13.5px; }
-    body { font-size: 12px; }
     .screen { padding: 2rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); }
     /* keep detail text clear of the docked mac (don't let the
        shorthand above clobber the padding-bottom set earlier) */
     .detail-screen { padding-bottom: calc(240px + env(safe-area-inset-bottom)); }
-    .prompt { margin-top: 1.9rem; }
-    footer { margin-top: 1.9rem; }
     .hint { margin-top: 1.9rem; }
   }
 
@@ -503,94 +359,64 @@
   }
   @keyframes caret { 50% { border-color: transparent; } }
 
-  /* wip: fresh prompt — git init cycles project names, prompt waits */
-  .app-wip .wline {
-    line-height: 1.5;
-    margin-bottom: 7px;
-    white-space: nowrap;
-    color: var(--text-dim);
+  /* blog: a less(1) pager — text scrolls, status line counts up */
+  .app-blog .pager {
+    height: 86px;
+    overflow: hidden;
+    position: relative;
   }
-  .app-wip .g { color: var(--green); }
-  .app-wip .faint { color: var(--text-faint); }
-  .app-wip .cycle {
+  .app-blog .ptext { animation: pageScroll 11s ease-in-out infinite; }
+  .app-blog .bline {
+    height: 5px;
+    border-radius: 2.5px;
+    margin-bottom: 11px;
+    width: var(--w, 60%);
+    background: var(--text-dim);
+    opacity: 0.55;
+  }
+  .app-blog .bline.h { background: var(--accent); opacity: 0.9; height: 7px; }
+  @keyframes pageScroll {
+    0%,   18%  { transform: translateY(0); }
+    32%,  50%  { transform: translateY(-32px); }
+    64%,  82%  { transform: translateY(-64px); }
+    100%       { transform: translateY(0); }
+  }
+  /* less's inverted status line at the foot of the pager */
+  .app-blog .lstatus {
+    margin-top: 0.5rem;
+    background: rgba(139, 148, 158, 0.16);
+    color: var(--text-faint);
+    font-size: 0.68rem;
+    padding: 1px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .app-blog .pcts {
+    display: block;
+    animation: pagePct 11s steps(1) infinite;
+  }
+  .app-blog .pcts span { display: block; height: 1.5em; color: var(--accent); }
+
+  .cycle {
     display: inline-block;
     height: 1.5em;
     line-height: 1.5em;
     overflow: hidden;
     vertical-align: bottom;
   }
-  .app-wip .names {
-    display: block;
-    animation: wipNames 8.8s steps(1) infinite;
-  }
-  .app-wip .names span {
-    display: block;
-    height: 1.5em;
-    color: var(--accent);
-  }
-  @keyframes wipNames {
-    0%,   22%  { transform: translateY(0); }
-    25%,  47%  { transform: translateY(-1.5em); }
-    50%,  72%  { transform: translateY(-3em); }
-    75%,  97%  { transform: translateY(-4.5em); }
+  @keyframes pagePct {
+    0%,   18%  { transform: translateY(0); }
+    32%,  50%  { transform: translateY(-1.5em); }
+    64%,  82%  { transform: translateY(-3em); }
     100%       { transform: translateY(0); }
-  }
-  .app-wip .wcursor {
-    display: inline-block;
-    width: 7px;
-    height: 1em;
-    background: var(--accent);
-    vertical-align: -0.15em;
-    animation: blink 1.1s steps(1) infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .type { width: 24ch; }
+    .hint .down { animation: none; }
     .mac * { animation: none !important; transition: none !important; }
     .mac .lid { transform: none !important; }
     .mac .tline, .mac .dcursor { opacity: 1 !important; }
-  }
-
-  /* man-page layout for project READMEs */
-  .man-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 1.25rem;
-    color: var(--text-faint);
-    font-size: 0.75rem;
-  }
-  .man-sec {
-    margin-top: 1.2rem;
-    color: var(--text);
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-  }
-
-  .man-body {
-    margin-top: 0.2rem;
-    padding-left: 2ch;
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    max-width: 58ch;
-  }
-  .man-body .pname { color: var(--accent); font-weight: 600; }
-  .man-body b { color: var(--text); font-weight: 500; }
-
-  .cmdline {
-    margin-top: 1.5rem;
-    color: var(--text-dim);
-    font-size: 0.85rem;
-  }
-  .cmdline + .cmdline { margin-top: 0.4rem; }
-  .man-body .cmdline { margin-top: 0; }
-  .man-body .cmdline + .cmdline { margin-top: 0.3rem; }
-  .cmdline::before { content: "$ "; color: var(--green); }
-  .cmdline a { color: var(--accent); text-decoration: none; }
-  .cmdline .comment { color: var(--text-faint); }
-  @media (hover: hover) and (pointer: fine) {
-    .cmdline a:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
 
   /* ── scroll hint ────────────────────────────────── */
@@ -604,26 +430,6 @@
     animation: bob 2s ease-in-out infinite;
   }
   @keyframes bob { 50% { transform: translateY(3px); } }
-
-  /* ── footer ─────────────────────────────────────── */
-  footer {
-    margin-top: 2.5rem;
-    font-size: 0.85rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  footer a {
-    color: var(--accent);
-    text-decoration: none;
-    transition: color 150ms ease;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
-  }
-  .footer-line, .signoff { color: var(--text-dim); }
-  .footer-line::before, .signoff::before { content: "$ "; color: var(--green); }
-  .footer-line .sep, .signoff .comment { color: var(--text-faint); }
 
   /* ── short viewports (laptops) ──────────────────────
      The home stack is ~760px tall; on shorter screens the flex-centering
@@ -640,37 +446,6 @@
     .prompt, footer, .hint { margin-top: 1.2rem; }
     .projects a { padding: 0.15rem 0; }
   }
-
-  /* fixed © sticker — lives in the status bar's right corner,
-     like tmux's right-status */
-  .site-foot {
-    position: fixed;
-    right: max(1rem, env(safe-area-inset-right, 0px));
-    bottom: env(safe-area-inset-bottom, 0px);
-    height: 28px;
-    line-height: 28px;
-    font-size: 11px;
-    letter-spacing: 0.02em;
-    color: var(--text-faint);
-    z-index: 11;
-    pointer-events: none;
-    opacity: 0;
-    animation: fadeIn 500ms var(--ease-out) 1300ms both;
-  }
-  @media (max-width: 640px) {
-    .site-foot { display: none; }
-  }
-
-  .cursor {
-    display: inline-block;
-    width: 0.55em;
-    height: 1.1em;
-    background: var(--accent);
-    vertical-align: text-bottom;
-    margin-left: 2px;
-    animation: blink 1.1s steps(1) infinite;
-  }
-  @keyframes blink { 50% { opacity: 0; } }
 </style>
 <noscript><style>.reveal .in { animation-play-state: running; } .mac .lid { transform: none; } .mac .tline, .mac .dcursor { opacity: 1; }</style></noscript>
 </head>
@@ -716,7 +491,8 @@
             </a>
           </li>
           <li class="in" style="--i:7">
-            <a href="#mobile-recon">
+            <!-- no detail screen for this one — straight to the repo -->
+            <a href="https://github.com/MKS-01/mobile-recon">
               <span class="name">mobile-recon</span>
               <p class="desc">lab phone → <b>recon target</b>, AI-assisted security CLI</p>
             </a>
@@ -772,18 +548,21 @@
             <div class="gauge"><span class="lbl">gpu</span><div class="bar"><i style="--lo:35%;--hi:92%;--t:1.8s"></i></div></div>
             <p class="type">&gt; streaming ~38 tok/s…</p>
           </div>
-          <div class="app app-recon">
-            <p class="pane-title"><b>mobile-recon</b> · scanning</p>
-            <div class="kv"><span class="k">device</span><span>pixel-4a · adb</span></div>
-            <div class="kv"><span class="k">net</span><span>192.168.1.0/24 · nmap</span></div>
-            <div class="gauge"><span class="lbl">scan</span><div class="bar"><i style="--lo:15%;--hi:88%;--t:2.6s"></i></div></div>
-            <p class="type">&gt; 12 findings · 3 hosts…</p>
-          </div>
-          <div class="app app-wip">
-            <p class="pane-title"><b>wip</b> · ~/weekend-hacks</p>
-            <p class="wline"><span class="g">$</span> git init <span class="cycle"><span class="names"><span>lora-mesh</span><span>robot-arm</span><span>offline-llm</span><span>next-thing</span></span></span></p>
-            <p class="wline faint">Initialized empty git repository</p>
-            <p class="wline"><span class="g">$</span> <span class="wcursor"></span></p>
+          <div class="app app-blog">
+            <p class="pane-title"><b>blog</b> · less</p>
+            <div class="pager">
+              <div class="ptext">
+                <div class="bline h" style="--w:66%"></div>
+                <div class="bline" style="--w:88%"></div>
+                <div class="bline" style="--w:74%"></div>
+                <div class="bline" style="--w:92%"></div>
+                <div class="bline" style="--w:58%"></div>
+                <div class="bline h" style="--w:48%"></div>
+                <div class="bline" style="--w:84%"></div>
+                <div class="bline" style="--w:70%"></div>
+              </div>
+            </div>
+            <p class="lstatus">~/blog/*.md <span class="cycle"><span class="pcts"><span>18%</span><span>46%</span><span>73%</span></span></span></p>
           </div>
         </div>
         <div class="base"><i class="notch"></i></div>
@@ -855,33 +634,46 @@
     </div>
   </div>
 
-  <div class="screen detail-screen reveal" id="mobile-recon">
-    <div class="inner">
-      <div class="content">
-      <p class="prompt in" style="--i:0"><span class="cmd">man mobile-recon</span></p>
-      <div class="output">
-        <p class="man-head in" style="--i:1"><span>MOBILE-RECON(1)</span><span>Weekend Hacks Manual</span></p>
-        <p class="man-sec in" style="--i:2">NAME</p>
-        <p class="man-body in" style="--i:3"><span class="pname">mobile-recon</span> — lab phone → <b>recon target</b></p>
-        <p class="man-sec in" style="--i:4">DESCRIPTION</p>
-        <p class="man-body in" style="--i:5">AI-assisted CLI for mobile security testing — Android, iOS and the networks they run on. ADB, static APK audits, Frida and nmap under one roof. Lab use only; test what you're authorized to.</p>
-        <p class="man-sec in" style="--i:6">STACK</p>
-        <p class="man-body in" style="--i:7"><b>go</b>(1), <b>adb</b>(1), <b>frida</b>(1), <b>nmap</b>(1)</p>
-        <p class="man-sec in" style="--i:8">SEE ALSO</p>
-        <div class="man-body">
-          <p class="cmdline in" style="--i:9">git clone <a href="https://github.com/MKS-01/mobile-recon">github.com/MKS-01/mobile-recon</a></p>
-        </div>
-      </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="screen detail-screen reveal" id="wip">
+
+  <!-- ── blog index (+ the wip line, folded in here) ─────────────────
+       ADD A POST = 2 steps:
+         1. copy blog/_template.html → blog/<slug>.html, fill it in
+         2. paste the <li> below into the list, NEWEST FIRST, then push the
+            two wip lines' --i up by one so the print order stays sequential
+
+       <li class="in" style="--i:N">
+         <a href="blog/<slug>.html">
+           <span class="name"><slug></span>
+           <p class="desc">one dry line, same shape as a project</p>
+         </a>
+       </li>
+
+       Keep it to ~10 posts and slugs to ≤23 chars — this screen is sized
+       for one viewport, and longer slugs wrap the name column.
+  ── -->
+  <div class="screen detail-screen reveal" id="blog">
     <div class="inner">
       <div class="content">
-      <p class="prompt in" style="--i:0"><span class="cmd">ls ~/weekend-hacks/wip</span></p>
+      <p class="prompt in" style="--i:0"><span class="cmd">ls ~/blog</span></p>
+      <ul class="output projects">
+        <li class="in" style="--i:1">
+          <a href="blog/home-server-on-512mb.html">
+            <span class="name">home-server-on-512mb</span>
+            <p class="desc">a pi zero 2 w, and what its limits forced</p>
+          </a>
+        </li>
+        <li class="in" style="--i:2">
+          <a href="blog/why-i-built-readback.html">
+            <span class="name">why-i-built-readback</span>
+            <p class="desc">started as a voice agent — the reader is what was left</p>
+          </a>
+        </li>
+      </ul>
+
+      <p class="prompt in" style="--i:3"><span class="cmd">ls ~/weekend-hacks/wip</span></p>
       <div class="output">
-        <p class="reading in" style="--i:1"><span class="arrow">›</span>still a few unfinished weekend projects — updating soon<span class="cursor"></span></p>
+        <p class="reading in" style="--i:4"><span class="arrow">›</span>still a few unfinished weekend projects — updating soon<span class="cursor"></span></p>
       </div>
       </div>
     </div>
@@ -893,8 +685,7 @@
   <a href="#readback">1:readback</a>
   <a href="#pizow">2:pizow</a>
   <a href="#mac-mlx-cluster">3:mlx</a>
-  <a href="#mobile-recon">4:recon</a>
-  <a href="#wip">5:wip</a>
+  <a href="#blog">4:blog</a>
 </nav>
 <div class="site-foot" aria-hidden="true">© <span id="year">2026</span> mks</div>
 <script>
@@ -939,22 +730,33 @@
     root.style.scrollSnapType = "";
     window.removeEventListener("scrollend", restoreSnap);
   };
+  const goTo = (target, smooth) => {
+    clearTimeout(snapTimer);
+    root.style.scrollSnapType = "none";
+    target.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    // re-arm snap when the scroll settles — scrollend fires at the true
+    // end regardless of distance (iOS 16.4+); timeout covers older Safari
+    // and the case where the page was already at the target (no scroll).
+    window.addEventListener("scrollend", restoreSnap, { once: true });
+    snapTimer = setTimeout(restoreSnap, 1200);
+  };
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener("click", (e) => {
       const target = document.getElementById(a.getAttribute("href").slice(1));
       if (!target) return;
       e.preventDefault();
-      clearTimeout(snapTimer);
-      root.style.scrollSnapType = "none";
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      goTo(target, true);
       history.replaceState(null, "", a.getAttribute("href"));
-      // re-arm snap when the scroll settles — scrollend fires at the true
-      // end regardless of distance (iOS 16.4+); timeout covers older Safari
-      // and the case where the page was already at the target (no scroll).
-      window.addEventListener("scrollend", restoreSnap, { once: true });
-      snapTimer = setTimeout(restoreSnap, 1200);
     });
   });
+
+  /* Landing on a deep link (e.g. back from a post to #blog): the browser's
+     own hash scroll is unreliable under mandatory snap on iOS, same as the
+     click case. Redo it ourselves once layout has settled. */
+  if (location.hash.length > 1) {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target) requestAnimationFrame(() => goTo(target, false));
+  }
 
   const yr = document.getElementById("year");
   if (yr) yr.textContent = new Date().getFullYear();

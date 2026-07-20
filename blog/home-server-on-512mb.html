@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>a home server on 512 mb — mks.sh</title>
+<meta name="description" content="A Pi Zero 2 W sat unused for months. It became the server my house runs on.">
+<meta property="og:title" content="a home server on 512 mb">
+<meta property="og:description" content="A Pi Zero 2 W sat unused for months. It became the server my house runs on.">
+<meta property="og:type" content="article">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><path fill='%2358A6FF' d='M64,4.5C36.2,4.5,8,28.1,8,55.8s44.3,67.7,56.2,67.7c13.2,0,55.8-39.9,55.8-67.7S91.8,4.5,64,4.5z'/><path fill='%230D1117' d='M64,102.35c-9.37,0-16.06-5.52-18.07-8.58c-0.76-0.98-0.92-2.31-0.41-3.44c0.39-0.74,1.17-1.18,2-1.15c0.3,0,0.6,0.05,0.88,0.15C53.1,90.8,57.23,93,64,93s10.92-2.16,15.63-3.63c0.28-0.1,0.58-0.15,0.88-0.15c0.83-0.03,1.61,0.41,2,1.15c0.51,1.13,0.35,2.46-0.41,3.44C80.06,96.83,73.37,102.35,64,102.35z M54.05,81.56c-3,3.88-17.71,3.89-28.85-6.36c-10.09-9.28-9.46-25.64-6.13-28.94s19.19-3.38,28.85,6.36S57.72,77.92,54.05,81.56z M80.08,52.58c9.66-9.7,25.52-9.62,28.85-6.33s3.53,19.11-6.13,28.8S77.64,85,73.94,81.38S70.42,62.28,80.08,52.58z'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* ── post-only layout. NO scroll-snap here: a post is long-form
+     scrolling text, which is exactly what the deck's mandatory snap
+     would break. Tokens + terminal grammar come from ../style.css. ── */
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem calc(5rem + env(safe-area-inset-bottom));
+  }
+  .back { display: inline-block; text-decoration: none; }
+
+  .post-title {
+    margin-top: 1.6rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  .post-title::before { content: "# "; color: var(--text-faint); font-weight: 400; }
+  .post-meta { margin-top: 0.5rem; color: var(--text-faint); font-size: 0.78rem; }
+
+  /* ── prose ──────────────────────────────────────── */
+  .post { margin-top: 2.2rem; max-width: 68ch; font-size: 0.85rem; }
+  .post > * + * { margin-top: 1.15rem; }
+  .post p { color: var(--text-dim); }
+  .post b, .post strong { color: var(--text); font-weight: 500; }
+  .post a { color: var(--accent); text-decoration: none; }
+  @media (hover: hover) and (pointer: fine) {
+    .post a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  }
+
+  /* headings wear their markdown hashes, like the title */
+  .post h2, .post h3 {
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  .post h2 { margin-top: 2.6rem; font-size: 1rem; }
+  .post h3 { margin-top: 2rem; font-size: 0.9rem; }
+  .post h2::before { content: "## "; color: var(--text-faint); font-weight: 400; }
+  .post h3::before { content: "### "; color: var(--text-faint); font-weight: 400; }
+
+  .post ul, .post ol { padding-left: 1.5rem; color: var(--text-dim); }
+  .post li + li { margin-top: 0.4rem; }
+  .post li::marker { color: var(--text-faint); }
+
+  .post blockquote {
+    border-left: 2px solid var(--text-faint);
+    padding-left: 1rem;
+    color: var(--text-faint);
+  }
+
+  /* code: inline stays subtle, blocks scroll on their own so the page
+     body never scrolls sideways on a phone */
+  .post code {
+    background: #161b22;
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    font-size: 0.92em;
+    color: var(--accent);
+  }
+  .post pre {
+    background: #161b22;
+    border-radius: 6px;
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  .post pre code { background: none; padding: 0; color: var(--text-dim); }
+  .post pre .g { color: var(--green); }        /* the $ prompt inside a block */
+  .post pre .c { color: var(--text-faint); }   /* a comment inside a block */
+
+  .post img { max-width: 100%; height: auto; border-radius: 6px; }
+
+  /* tables scroll rather than pushing the page wide */
+  .post .scroll-x { overflow-x: auto; }
+  .post table { border-collapse: collapse; font-size: 0.8rem; min-width: 26rem; }
+  .post th, .post td {
+    text-align: left;
+    padding: 0.4rem 1rem 0.4rem 0;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .post th { color: var(--text); font-weight: 500; }
+
+
+  /* hero diagram — the pipeline, drawn in the same visual language as the
+     site's CSS MacBook (faint strokes, 5%-tint fills, monospace labels).
+     Scales with the column via viewBox; no raster asset, no new dependency. */
+  /* Match the prose measure exactly: same max-width AND same font-size, so
+     `ch` resolves identically in both. Without the font-size the figure
+     computes ch against the 14px body and overshoots the text column. */
+  .hero { margin-top: 2rem; max-width: 68ch; font-size: 0.85rem; }
+  /* viewBox + height:auto keeps the aspect ratio at any width */
+  .hero svg { display: block; width: 100%; height: auto; }
+  /* at ~0.64 scale on a phone the 10px detail labels land at ~6px — mush.
+     Drop them and keep the shape; the caption and prose carry the detail. */
+  @media (max-width: 540px) {
+    .hero .sub { display: none; }
+  }
+  .hero figcaption {
+    margin-top: 0.7rem;
+    color: var(--text-faint);
+    font-size: 0.72rem;
+  }
+
+  /* less(1) signs off at the bottom of the file */
+  .eof { margin-top: 3rem; color: var(--text-faint); font-size: 0.8rem; }
+
+  @media (max-width: 540px) {
+    .wrap { padding: 2rem 1.25rem calc(4.5rem + env(safe-area-inset-bottom)); }
+    .post-title { font-size: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="in" style="--i:0">
+    <a class="back" href="../index.html#blog">
+      <h1><svg class="alien" viewBox="0 0 128 128" aria-hidden="true"><path fill="var(--accent)" d="M64,4.5C36.2,4.5,8,28.1,8,55.8s44.3,67.7,56.2,67.7c13.2,0,55.8-39.9,55.8-67.7S91.8,4.5,64,4.5z"/><path fill="var(--bg)" d="M64,102.35c-9.37,0-16.06-5.52-18.07-8.58c-0.76-0.98-0.92-2.31-0.41-3.44c0.39-0.74,1.17-1.18,2-1.15c0.3,0,0.6,0.05,0.88,0.15C53.1,90.8,57.23,93,64,93s10.92-2.16,15.63-3.63c0.28-0.1,0.58-0.15,0.88-0.15c0.83-0.03,1.61,0.41,2,1.15c0.51,1.13,0.35,2.46-0.41,3.44C80.06,96.83,73.37,102.35,64,102.35z M54.05,81.56c-3,3.88-17.71,3.89-28.85-6.36c-10.09-9.28-9.46-25.64-6.13-28.94s19.19-3.38,28.85,6.36S57.72,77.92,54.05,81.56z M80.08,52.58c9.66-9.7,25.52-9.62,28.85-6.33s3.53,19.11-6.13,28.8S77.64,85,73.94,81.38S70.42,62.28,80.08,52.58z"/></svg> mks<span class="tld">.sh</span></h1>
+    </a>
+  </header>
+
+  <p class="prompt in" style="--i:1"><span class="cmd">less ~/blog/home-server-on-512mb.md</span></p>
+
+  <h2 class="post-title in" style="--i:2">a home server on 512 mb</h2>
+  <p class="post-meta in" style="--i:3">written 2026-07-21 · 3 min</p>
+
+  <p class="cmdline in" style="--i:4">git clone <a href="https://github.com/MKS-01/pizow">github.com/MKS-01/pizow</a></p>
+
+  <figure class="hero in" style="--i:5">
+    <svg viewBox="0 0 560 292" role="img" aria-labelledby="pi-t">
+      <title id="pi-t">deploy.sh ships a build from the Mac over ssh to a Raspberry Pi Zero 2 W, where nginx fronts a PM2-managed Node app and a USB drive serves a NAS; the Pi hosts both the monitoring dashboard and the readback library.</title>
+      <defs>
+        <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0 L8 4 L0 8 z" fill="var(--text-faint)"/>
+        </marker>
+      </defs>
+
+      <rect x="180" y="14" width="200" height="34" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
+      <text x="280" y="36" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">your mac</text>
+      <path d="M280 48 V86" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
+      <text x="292" y="72" font-family="Fira Code, monospace" font-size="9" fill="var(--text-faint)" class="sub">deploy.sh · rsync over ssh</text>
+
+      <rect x="30" y="94" width="500" height="112" fill="none" stroke="var(--text-faint)" stroke-width="1.5" stroke-dasharray="4 4" rx="8"/>
+      <text x="46" y="115" font-family="Fira Code, monospace" font-size="11" fill="var(--text-faint)" class="sub">raspberry pi zero 2 w · 512 mb ram · 1 gb swap</text>
+
+      <rect x="48" y="128" width="140" height="52" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
+      <rect x="210" y="128" width="140" height="52" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
+      <rect x="372" y="128" width="140" height="52" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
+      <text x="118" y="152" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">nginx :80</text>
+      <text x="280" y="152" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">pm2 · node</text>
+      <text x="442" y="152" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">nas :8080</text>
+      <text x="118" y="168" text-anchor="middle" font-family="Fira Code, monospace" font-size="9" font-weight="400" fill="var(--text-faint)" class="sub">reverse proxy</text>
+      <text x="280" y="168" text-anchor="middle" font-family="Fira Code, monospace" font-size="9" font-weight="400" fill="var(--text-faint)" class="sub">your app</text>
+      <text x="442" y="168" text-anchor="middle" font-family="Fira Code, monospace" font-size="9" font-weight="400" fill="var(--text-faint)" class="sub">usb · nfs</text>
+      <path d="M188 150 H206" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
+
+      <path d="M280 206 V226 H140 V244" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
+      <path d="M280 206 V226 H420 V244" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
+      <rect x="40" y="248" width="200" height="32" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
+      <rect x="320" y="248" width="200" height="32" fill="rgba(88,166,255,0.08)" stroke="var(--accent)" stroke-width="1.5" rx="6"/>
+      <text x="140" y="269" text-anchor="middle" font-family="Fira Code, monospace" font-size="13" font-weight="500" fill="var(--text)">monitoring dashboard</text>
+      <text x="420" y="269" text-anchor="middle" font-family="Fira Code, monospace" font-size="13" font-weight="500" fill="var(--accent)">readback library</text>
+    </svg>
+    <figcaption>one board: deploy target, reverse proxy, NAS, and the machine that serves readback's library.</figcaption>
+  </figure>
+
+  <div class="post in" style="--i:6">
+    <p>I'm a seasonal hardware nerd. Sensors turn up, a weekend turns up, I
+    build something and it goes in a drawer. This Pi Zero 2 W sat unused for
+    months until one evening I flashed Ubuntu Server onto the card, mostly to
+    find out whether a board with <b>512 MB of RAM</b> could serve anything
+    real or whether it was a toy.</p>
+
+    <p>It turned into the server my house runs on. Here's what's actually on
+    it.</p>
+
+    <h2>what it is</h2>
+
+    <p><b>pizow</b> is a set of shell scripts and one Next.js dashboard.
+    <code>setup-pi.sh</code> takes a blank Ubuntu install to a working server
+    — Node 22, PM2, nginx, and a swap file — and it's idempotent, so
+    re-running it after you've broken something is the repair path.</p>
+
+    <p>After that <code>deploy.sh</code> is the only thing I run, and it has
+    three modes because the Pi can't always do the work itself:</p>
+
+    <pre><code><span class="g">$</span> deploy.sh --local     <span class="c"># build on the mac, rsync the result</span>
+<span class="g">$</span> deploy.sh --remote    <span class="c"># git pull + build on the pi</span>
+<span class="g">$</span> deploy.sh --restart   <span class="c"># just bounce pm2</span></code></pre>
+
+    <p>nginx fronts the app on port 80 and PM2 keeps it alive across reboots.
+    The dashboard reports CPU, memory, disk, temperature, network and every
+    running service, polling its own API rather than holding a socket open —
+    on a board this size, an idle connection per browser tab is a real
+    cost.</p>
+
+    <h2>what 512 mb forces</h2>
+
+    <p>Most of what this project taught me was the hardware refusing to be
+    ignored.</p>
+
+    <ul>
+      <li><b>Swap isn't optional.</b> Builds fail outright without it, so
+      <code>setup-pi.sh</code> creates a 1 GB swapfile before anything else.
+      512 MB is not enough to compile a Next.js app, and the failure mode is
+      the OOM killer taking the build out mid-run rather than a clean
+      error.</li>
+      <li><b>Build somewhere else when you can.</b> Next.js
+      <code>output: 'standalone'</code> emits a self-contained bundle, so
+      <code>--local</code> rsyncs <code>.next/standalone</code> and the Pi
+      runs <code>node server.js</code> directly. No
+      <code>npm start</code>, no <code>node_modules</code> install on the
+      device, no toolchain. The Pi only executes.</li>
+      <li><b>The USB port caps at 500 mA.</b> The OTG port will not spin a
+      mechanical drive. Flash storage or a powered hub — this one cost me an
+      evening before I read the spec.</li>
+      <li><b>Assume the disk is missing.</b> The NAS mounts at
+      <code>/mnt/nas</code> with <code>nofail</code>, so the Pi still boots
+      when the drive isn't attached. Anything reading from it checks
+      <code>mountpoint -q</code> first instead of trusting the path.</li>
+    </ul>
+
+    <h2>the nas half</h2>
+
+    <p><code>setup-nas.sh</code> turns any USB stick into shared storage:
+    format to ext4, export over NFS for machines that speak it, and run File
+    Browser on port 8080 for the ones that don't. A udev rule remounts the
+    drive when it's pulled and reinserted, which matters more than it sounds
+    — without it, one accidental unplug leaves you SSH'ing in to remount by
+    hand.</p>
+
+    <p>It runs independently of the app. Nothing in the web stack depends on
+    the drive being present, which is the same <code>nofail</code> instinct
+    applied at the architecture level.</p>
+
+    <h2>it serves readback</h2>
+
+    <p>The Pi is where <a href="why-i-built-readback.html">readback</a>'s
+    library lives. That split works because of how readback is built: audio
+    generation wants a GPU and stays on the Mac, but the library dashboard is
+    model-free — it lists rows out of SQLite and serves a finished WAV.</p>
+
+    <p>That's a static-file workload with a database index in front of it,
+    which is exactly what a 512 MB board is good at. The expensive machine
+    does the expensive thing; the cheap machine does the thing that runs all
+    day. Neither is doing work it's badly suited for.</p>
+
+    <h2>where it landed</h2>
+
+    <p>The commit log is honest about the rest: a burst of work, then nothing
+    for months, then a second burst when I had something real to point at it.
+    I don't maintain things I'm not using, and the Pi kept running the whole
+    time — it just didn't need me. It's the oldest thing in my weekend-hacks
+    folder and the one I use most, and it started as a board I had no plan
+    for.</p>
+
+  </div>
+
+  <p class="eof in" style="--i:7">(END)</p>
+  <p class="cmdline in" style="--i:8"><a href="../index.html#blog">cd ~/blog</a></p>
+</div>
+
+<nav class="rail" aria-label="sections">
+  <span class="sess">[mks]</span>
+  <a href="../index.html#home">0:home</a>
+  <a href="../index.html#blog" class="active">4:blog</a>
+</nav>
+<div class="site-foot" aria-hidden="true">© <span id="year">2026</span> mks</div>
+<script>
+  const yr = document.getElementById("year");
+  if (yr) yr.textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

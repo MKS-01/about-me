@@ -5,12 +5,74 @@ description: Design system, content voice, and animation conventions for MKS's m
 
 # mks.sh portfolio conventions
 
-Single-file static page (`index.html`) styled as a terminal session. Everything —
-header, whoami, project list, now-reading, footer — reads like one continuous
-shell session, top to bottom. Every design and copy decision should reinforce
+Static terminal-styled site: `index.html` is a scroll-snap deck, `blog/*.html`
+are long-form posts, `style.css` is the shared vocabulary. Everything —
+header, whoami, project list, now-reading, footer, posts — reads like one
+continuous shell session. Every design and copy decision should reinforce
 that illusion, not break it.
 
-## Design tokens (`:root`)
+## Where CSS goes (decided July 2026)
+
+The site was one file until the blog. Posts forced a split, because a post is
+long-form scrolling text and a deck screen is a snap stop — opposite layout
+models — and duplicating tokens across 11 files would guarantee drift.
+
+- **`style.css`** — anything two pages share: `:root` tokens, reset, base
+  type, `.in` entrance, header/wordmark, `.prompt`/`.cmdline`/`.output`,
+  `.reading`, `.man-*`, `footer`, `.rail` tmux bar, `.site-foot`, `.cursor`.
+- **`index.html` inline `<style>`** — deck-only: `.screen` + snap, `.mac` and
+  every `.app-*`, `.projects`, `.hint`, the mac's mobile height tiers.
+- **`blog/*.html` inline `<style>`** — post-only: `.wrap`, `.post` prose
+  rhythm, headings, `pre`/`code`, `.eof`.
+
+**The one rule that breaks everything if violated:** `scroll-snap-type: y
+mandatory` stays in `index.html`'s inline block. Never move it to
+`style.css` — it would apply to every post and destroy long-form scrolling.
+The comment saying so is in both files; keep it there.
+
+Inline blocks load *after* the linked sheet, so a page can override shared
+rules at equal specificity without `!important`.
+
+## Blog
+
+**Writing or editing an actual post? Use the `writing-a-blog-post` skill** —
+it covers the post format, prose markup, read-time and the publish step.
+What follows is only how the blog wires into the deck.
+
+- Post list is a deck screen (`#blog`, `$ ls ~/blog`), reusing the exact
+  `.projects` two-column shape as `ls ~/weekend-hacks`; `4:blog` is the
+  fifth and last tmux window. Chosen over a separate `/blog/` index page —
+  with the owner's ~10-post cap, an extra navigation hop buys nothing.
+- **The wip line lives on the blog screen**, under a second
+  `$ ls ~/weekend-hacks/wip` prompt (owner's call, July 2026: "combine
+  blog"). It is no longer its own screen or window, and `app-wip`'s
+  git-init animation was deleted with it — one screen shows one mac app,
+  and that slot belongs to `app-blog`. Because that screen now runs two
+  prompts, the "first prompt has no top margin" rule is scoped to
+  `.detail-screen .content > .prompt:first-child`; don't loosen it back to
+  `.detail-screen .prompt` or the second command will collide with the list
+  above it.
+- **`mobile-recon` has no detail screen** (removed July 2026, same pass). It
+  stays in the home `ls ~/weekend-hacks` list but links straight to the
+  GitHub repo instead of an `#anchor`. `app-recon` was deleted as dead code.
+  A project appearing on the landing does NOT imply it has a screen.
+- Posts open with `$ less ~/blog/<slug>.md` and close with `(END)` +
+  `$ cd ~/blog`. `less` was picked over `cat` (which the landing uses for
+  short output) and over `man` (reserved for projects) because it's the
+  pager you'd actually use on long text and it signals "this one scrolls."
+- Post pages carry **no mac** and no snap — just the wordmark linking back to
+  `../index.html#blog`, and a two-window tmux bar (`0:home`, `6:blog`).
+- Post bodies fade in as **one block** (`.post.in`), not line-by-line. The
+  `--i` print sequence is for terminal output; a 4-minute read printing
+  55ms per line would be unusable. Only the header/prompt/title/meta use it.
+- `#blog .projects .name` is widened to `12.5rem` — post slugs run longer
+  than project names and wrapped mid-slug at the default `9.5rem`. Keep
+  slugs ≤23 chars.
+- Arriving at `index.html#blog` from a post re-runs the JS scroll (snap off →
+  `scrollIntoView` → restore) on load, because the browser's native hash
+  scroll is as unreliable under mandatory snap as the click case was.
+
+## Design tokens (`:root`, defined in `style.css`)
 
 ```
 --bg: #0d1117        page background
@@ -32,7 +94,7 @@ break monospace anywhere — the terminal conceit depends on it.
   `.screen.detail-screen.reveal` per project. Each `.screen` is
   `min-height: 100dvh` flex-centered with `padding: 3rem 1.5rem`; inner
   wrapper `.inner` is `max-width: 720px` (940px on home + detail screens,
-  whose text column `.content` caps at 540px so it clears the fixed mac).
+  whose text column `.content` caps at 500px so it clears the fixed mac).
   Never go back to a top-anchored layout with huge bottom whitespace —
   explicitly rejected ("looks like hanging on the top").
 - Every section is a `<p class="prompt">` (green `$ command`) followed by
@@ -131,9 +193,13 @@ proposing alternatives):
   right (`left: calc(50% + 90px)`, 400px wide, ≥1021px viewports). Its
   screen hosts one `.app` per section (`app-home` terminal lines,
   `app-readback` EQ bars + progress, `app-pizow` htop gauges, `app-mlx`
-  gpu bar + typewriter). The same IntersectionObserver that drives the
-  rail sets `data-app = screen id`, crossfading apps as you scroll. All
+  gpu bar + typewriter, `app-blog` a `less(1)` pager whose text scrolls and
+  whose status line counts up). The same IntersectionObserver that drives
+  the rail sets `data-app = screen id`, crossfading apps as you scroll. All
   demo animation is CSS-only; the mac is `aria-hidden`.
+- Adding a screen means adding its `.app` **and** its selector to the
+  `.mac[data-app="…"]` list — miss the second and the mac just goes blank
+  on that screen. Deleting a screen means deleting both, or the CSS rots.
 - **Lid behavior: ALWAYS open, from first paint.** The markup hardcodes
   `class="mac open"`; there is no lid animation. Three earlier behaviors
   were built and rejected in sequence: scroll-position-linked lid angle
@@ -152,6 +218,17 @@ proposing alternatives):
   ≤440px (fits 360px), safe-area padded. It replaced a right-edge rail of
   square dots — chosen by the owner over vim-statusline, prompt-history
   rail, and ASCII scrollbar options.
+- **The bar's width budget is tight — measure, don't estimate.** It's a
+  single flex row with no wrap, so overflow silently pushes the last window
+  off a narrow phone rather than wrapping visibly. Measured at the ≤440px
+  tier: 5 windows = 284px (fits 360px with room), 7 full-length windows =
+  384px (**overflowed a 360px screen by 24px**). Media queries key off the
+  *viewport*, and headless Chrome clamps width to 500px, so a naive probe
+  reports the wrong tier entirely — rewrite the breakpoints in a test copy
+  to force the narrow tier, then sum the link widths + gaps + padding. If a
+  future bar does run long, truncate the longest label the way real tmux
+  truncates window names (a `<span>` inside the link, hidden at the narrow
+  tier) rather than shrinking the font for everything.
 - **Nav taps are JS-driven, not raw `#hash` jumps.** Hash anchors fight
   `scroll-snap-type: mandatory` on iOS Safari (taps land on the wrong
   screen / snap back — reported as "footer navigation buggy"; Android is
