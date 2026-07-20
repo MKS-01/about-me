@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>a home server on 512 mb — mks.sh</title>
-<meta name="description" content="A Pi Zero 2 W sat unused for months. It became the server my house runs on.">
+<meta name="description" content="A $15 board with 512 MB of RAM, and the architecture that fits on it.">
 <meta property="og:title" content="a home server on 512 mb">
-<meta property="og:description" content="A Pi Zero 2 W sat unused for months. It became the server my house runs on.">
+<meta property="og:description" content="A $15 board with 512 MB of RAM, and the architecture that fits on it.">
 <meta property="og:type" content="article">
 <link rel="icon" href="../favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,142 +26,69 @@
   <p class="prompt in" style="--i:1"><span class="cmd">less ~/blog/home-server-on-512mb.md</span></p>
 
   <h2 class="post-title in" style="--i:2">a home server on 512 mb</h2>
-  <p class="post-meta in" style="--i:3">written 2026-07-21 · 3 min</p>
+  <p class="post-meta in" style="--i:3">written 2026-07-21 · 2 min</p>
 
   <p class="cmdline in" style="--i:4">git clone <a href="https://github.com/MKS-01/pizow">github.com/MKS-01/pizow</a></p>
 
-  <figure class="hero in" style="--i:5">
-    <svg viewBox="0 0 560 292" role="img" aria-labelledby="pi-t">
-      <title id="pi-t">deploy.sh ships a build from the Mac over ssh to a Raspberry Pi Zero 2 W, where nginx fronts a PM2-managed Node app and a USB drive serves a NAS; the Pi hosts both the monitoring dashboard and the readback library.</title>
-      <defs>
-        <marker id="b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-          <path d="M0 0 L8 4 L0 8 z" fill="var(--text-faint)"/>
-        </marker>
-      </defs>
 
-      <rect x="180" y="14" width="200" height="34" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
-      <text x="280" y="36" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">your mac</text>
-      <path d="M280 48 V86" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
-      <text x="292" y="72" font-family="Fira Code, monospace" font-size="9" fill="var(--text-faint)" class="sub">deploy.sh · rsync over ssh</text>
+  <div class="post in" style="--i:5">
+    <p>$15, <b>512 MB of RAM</b>, and a microSD card. I flashed Ubuntu Server
+    onto a Pi Zero 2 W expecting a toy.</p>
 
-      <rect x="30" y="94" width="500" height="112" fill="none" stroke="var(--text-faint)" stroke-width="1.5" stroke-dasharray="4 4" rx="8"/>
-      <text x="46" y="115" font-family="Fira Code, monospace" font-size="11" fill="var(--text-faint)" class="sub">raspberry pi zero 2 w · 512 mb ram · 1 gb swap</text>
+    <p>It's been up for months. Here's what's on it.</p>
 
-      <rect x="48" y="128" width="140" height="52" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
-      <rect x="210" y="128" width="140" height="52" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
-      <rect x="372" y="128" width="140" height="52" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
-      <text x="118" y="152" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">nginx :80</text>
-      <text x="280" y="152" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">pm2 · node</text>
-      <text x="442" y="152" text-anchor="middle" font-family="Fira Code, monospace" font-size="16" font-weight="500" fill="var(--text)">nas :8080</text>
-      <text x="118" y="168" text-anchor="middle" font-family="Fira Code, monospace" font-size="9" font-weight="400" fill="var(--text-faint)" class="sub">reverse proxy</text>
-      <text x="280" y="168" text-anchor="middle" font-family="Fira Code, monospace" font-size="9" font-weight="400" fill="var(--text-faint)" class="sub">your app</text>
-      <text x="442" y="168" text-anchor="middle" font-family="Fira Code, monospace" font-size="9" font-weight="400" fill="var(--text-faint)" class="sub">usb · nfs</text>
-      <path d="M188 150 H206" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
+    <h2>what a raspberry pi is</h2>
 
-      <path d="M280 206 V226 H140 V244" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
-      <path d="M280 206 V226 H420 V244" fill="none" stroke="var(--text-faint)" stroke-width="1.5" marker-end="url(#b)"/>
-      <rect x="40" y="248" width="200" height="32" fill="rgba(139,148,158,0.05)" stroke="var(--text-faint)" stroke-width="1.5" rx="6"/>
-      <rect x="320" y="248" width="200" height="32" fill="rgba(88,166,255,0.08)" stroke="var(--accent)" stroke-width="1.5" rx="6"/>
-      <text x="140" y="269" text-anchor="middle" font-family="Fira Code, monospace" font-size="13" font-weight="500" fill="var(--text)">monitoring dashboard</text>
-      <text x="420" y="269" text-anchor="middle" font-family="Fira Code, monospace" font-size="13" font-weight="500" fill="var(--accent)">readback library</text>
-    </svg>
-    <figcaption>one board: deploy target, reverse proxy, NAS, and the machine that serves readback's library.</figcaption>
-  </figure>
+    <p>If you haven't used one: a Raspberry Pi is a whole computer on a single
+    board, smaller than a credit card. A microSD card is the hard drive,
+    there's no screen or keyboard, and you reach it over SSH. It sips power,
+    so leaving it on permanently costs nothing. The catch is the specs — 512
+    MB of RAM where a laptop has 16 GB, and that number drives everything
+    below.</p>
 
-  <div class="post in" style="--i:6">
-    <p>I'm a seasonal hardware nerd. Sensors turn up, a weekend turns up, I
-    build something and it goes in a drawer. This Pi Zero 2 W sat unused for
-    months until one evening I flashed Ubuntu Server onto the card, mostly to
-    find out whether a board with <b>512 MB of RAM</b> could serve anything
-    real or whether it was a toy.</p>
+    <h2>the architecture</h2>
 
-    <p>It turned into the server my house runs on. Here's what's actually on
-    it.</p>
+    <p>Three services, none of them depending on each other. <b>nginx</b>
+    listens on port 80 and reverse-proxies to a Node app. <b>PM2</b>
+    supervises that app, restarting it on crash and after reboots. The
+    <b>NAS</b> runs beside both, sharing a USB drive.</p>
 
-    <h2>what it is</h2>
+    <p>The drive is the least reliable part, so the Pi mounts it with
+    <code>nofail</code> and boots fine without it. <code>setup-pi.sh</code>
+    takes a blank Ubuntu install to all of that — Node 22, PM2, nginx, 1 GB
+    swap — and it's idempotent, so re-running it is the repair path.</p>
 
-    <p><b>pizow</b> is a set of shell scripts and one Next.js dashboard.
-    <code>setup-pi.sh</code> takes a blank Ubuntu install to a working server
-    — Node 22, PM2, nginx, and a swap file — and it's idempotent, so
-    re-running it after you've broken something is the repair path.</p>
+    <h2>deploying to it</h2>
 
-    <p>After that <code>deploy.sh</code> is the only thing I run, and it has
-    three modes because the Pi can't always do the work itself:</p>
+    <p><code>deploy.sh</code> has three modes:</p>
 
     <pre><code><span class="g">$</span> deploy.sh --local     <span class="c"># build on the mac, rsync the result</span>
 <span class="g">$</span> deploy.sh --remote    <span class="c"># git pull + build on the pi</span>
 <span class="g">$</span> deploy.sh --restart   <span class="c"># just bounce pm2</span></code></pre>
 
-    <p>nginx fronts the app on port 80 and PM2 keeps it alive across reboots.
-    The dashboard reports CPU, memory, disk, temperature, network and every
-    running service, polling its own API rather than holding a socket open —
-    on a board this size, an idle connection per browser tab is a real
-    cost.</p>
+    <p><code>--local</code> is the default, and the reason is the RAM. 512 MB
+    can't compile a Next.js app; without swap the OOM killer takes the build
+    out mid-run. So the Mac builds it — <code>output: 'standalone'</code>
+    emits a self-contained bundle, rsync ships it, and the Pi runs
+    <code>node server.js</code> directly. No toolchain on the device. It only
+    executes.</p>
 
-    <h2>what 512 mb forces</h2>
+    <h2>what it's for</h2>
 
-    <p>Most of what this project taught me was the hardware refusing to be
-    ignored.</p>
+    <p>A monitoring dashboard, a NAS, and
+    <a href="why-i-built-readback.html">readback</a>'s library. That last one
+    explains the setup: readback generates audio, which wants a GPU and stays
+    on the Mac, but serving the library is just SQLite rows and finished WAVs
+    — exactly what a 512 MB board is good at. The expensive machine does the
+    expensive thing; the cheap machine does the thing that runs all day.</p>
 
-    <ul>
-      <li><b>Swap isn't optional.</b> Builds fail outright without it, so
-      <code>setup-pi.sh</code> creates a 1 GB swapfile before anything else.
-      512 MB is not enough to compile a Next.js app, and the failure mode is
-      the OOM killer taking the build out mid-run rather than a clean
-      error.</li>
-      <li><b>Build somewhere else when you can.</b> Next.js
-      <code>output: 'standalone'</code> emits a self-contained bundle, so
-      <code>--local</code> rsyncs <code>.next/standalone</code> and the Pi
-      runs <code>node server.js</code> directly. No
-      <code>npm start</code>, no <code>node_modules</code> install on the
-      device, no toolchain. The Pi only executes.</li>
-      <li><b>The USB port caps at 500 mA.</b> The OTG port will not spin a
-      mechanical drive. Flash storage or a powered hub — this one cost me an
-      evening before I read the spec.</li>
-      <li><b>Assume the disk is missing.</b> The NAS mounts at
-      <code>/mnt/nas</code> with <code>nofail</code>, so the Pi still boots
-      when the drive isn't attached. Anything reading from it checks
-      <code>mountpoint -q</code> first instead of trusting the path.</li>
-    </ul>
-
-    <h2>the nas half</h2>
-
-    <p><code>setup-nas.sh</code> turns any USB stick into shared storage:
-    format to ext4, export over NFS for machines that speak it, and run File
-    Browser on port 8080 for the ones that don't. A udev rule remounts the
-    drive when it's pulled and reinserted, which matters more than it sounds
-    — without it, one accidental unplug leaves you SSH'ing in to remount by
-    hand.</p>
-
-    <p>It runs independently of the app. Nothing in the web stack depends on
-    the drive being present, which is the same <code>nofail</code> instinct
-    applied at the architecture level.</p>
-
-    <h2>it serves readback</h2>
-
-    <p>The Pi is where <a href="why-i-built-readback.html">readback</a>'s
-    library lives. That split works because of how readback is built: audio
-    generation wants a GPU and stays on the Mac, but the library dashboard is
-    model-free — it lists rows out of SQLite and serves a finished WAV.</p>
-
-    <p>That's a static-file workload with a database index in front of it,
-    which is exactly what a 512 MB board is good at. The expensive machine
-    does the expensive thing; the cheap machine does the thing that runs all
-    day. Neither is doing work it's badly suited for.</p>
-
-    <h2>where it landed</h2>
-
-    <p>The commit log is honest about the rest: a burst of work, then nothing
-    for months, then a second burst when I had something real to point at it.
-    I don't maintain things I'm not using, and the Pi kept running the whole
-    time — it just didn't need me. It's the oldest thing in my weekend-hacks
-    folder and the one I use most, and it started as a board I had no plan
-    for.</p>
+    <p>It hasn't asked me for anything since. Most of what I learned wasn't
+    about Linux — it was about what 512 MB refuses to do.</p>
 
   </div>
 
-  <p class="eof in" style="--i:7">(END)</p>
-  <p class="cmdline in" style="--i:8"><a href="../index.html#blog">cd ~/blog</a></p>
+  <p class="eof in" style="--i:6">(END)</p>
+  <p class="cmdline in" style="--i:7"><a href="../index.html#blog">cd ~/blog</a></p>
 </div>
 
 <nav class="rail" aria-label="sections">

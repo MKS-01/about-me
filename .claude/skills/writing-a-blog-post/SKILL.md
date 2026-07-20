@@ -179,6 +179,21 @@ body, wrapped in `<figure class="hero in">` with a `<figcaption>`. Rules:
   into **6.4px mush**. Tag them `class="sub"` and hide below 540px; keep
   primary labels at 14–16px so they land near 10px. Measure it, don't guess:
   render at 390px and read the screenshot.
+- **Tag the shapes too, not just their labels.** `.hero .sub` hides any
+  element, and a shape whose label just vanished is worse than no shape —
+  the pi-board hero first shipped with `microsd`, `wifi` and three port
+  rects tagged only on their `<text>`, so on a phone the board became an
+  empty square, a stray zigzag and three blank boxes. If a shape means
+  nothing without its label, put `class="sub"` on the shape as well so they
+  disappear together.
+- **Keep one identifying label out of `.sub`.** Hide everything and the
+  subject goes anonymous. The board keeps
+  `raspberry pi zero 2 w · 512 mb ram` at 14px, unhidden, so the mobile
+  render still says what it's a picture of. Decide which single label that
+  is before tagging the rest.
+- Detail that survives at 0.64 scale is chunky: a strip of ticks reads as a
+  GPIO header, a 2px circle reads as dirt. Prefer few bold shapes over many
+  fine ones.
 
 **Headings already get their hashes from CSS** (`h2::before { content: "## " }`).
 Write `<h2>the deck</h2>`, never `<h2>## the deck</h2>` — you'll get `## ## `.
@@ -223,20 +238,29 @@ Soft relative beats ("a week later", "when I finally came back") are fine.
 Version numbers (`v0.8.0`, `v2.0.0`) are fine — they're facts about the
 repo, not claims about the calendar.
 
-## Length: 3–5 minutes, hard ceiling
+## Length: short. 2–3 minutes, 5 is the hard ceiling
 
-**No post exceeds 5 minutes.** (Owner, July 2026.) The target band is 3–5;
-under 3 usually means the topic was too thin to be worth a post, over 5 and
-it stops being something you read in one sitting.
+**Default to 2–3 minutes.** (Owner, July 2026: *"keep the blog also short
+keep it 2mins"* — said while cutting `home-server-on-512mb` from 4 min to
+2.) An earlier draft of this rule set the floor at 3 min and called anything
+shorter too thin; that was wrong, and the owner overruled it. Short is the
+preference, not a failure state.
+
+**No post exceeds 5 minutes**, still.
 
 Read time is `words ÷ 200`, rounded, minimum 1 — prose only, don't count
 code blocks. That makes the budget concrete:
 
 ```
-3 min   ~600 words     lower bound
-4 min   ~800 words     comfortable
+2 min   ~400 words     the default — aim here first
+3 min   ~600 words     fine when the material earns it
 5 min   ~1000 words    HARD CEILING — do not ship over this
 ```
+
+At 400 words you get an opening, three or four `<h2>`s and a one-paragraph
+close. That's the whole budget. Pick the three things worth saying and drop
+the rest — `home-server-on-512mb` lost its NAS internals, the 500 mA note
+and a Claude Code section to fit, and reads better for it.
 
 Count before you publish, and set the meta line to the real number. A padded
 or shaved figure is the sort of small lie the rest of this site doesn't tell:
