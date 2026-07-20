@@ -4,11 +4,38 @@ Guidance for Claude Code working in this repo.
 
 ## What this is
 
-`mks.sh` — a single-file, static personal portfolio styled as a terminal
-session. Deployed as a GitHub Page at **mks-01.github.io** (repo
-`MKS-01/about-me`). Everything lives in **`index.html`**: inline `<style>`,
-inline SVG, and one inline `<script>` at the bottom. There is no build step,
-no framework, no dependencies — open the file and it runs.
+`mks.sh` — a static personal portfolio styled as a terminal session, plus a
+small blog. Deployed as a GitHub Page at **mks-01.github.io** (repo
+`MKS-01/about-me`). There is no build step, no framework, no dependencies —
+open a file and it runs.
+
+```
+style.css                 shared design system: tokens, terminal grammar
+                          ($ prompts, man-page, cmdline), footer, tmux bar
+index.html                the scroll-snap deck. Inline <style> holds ONLY
+                          deck-specific CSS (.screen + snap, .mac + .app-*,
+                          .projects, .hint) + one inline <script>
+blog/_template.html       copy-me skeleton for a new post
+blog/<slug>.html          one post per file, long-form scrolling
+```
+
+It was a single file until the blog arrived (July 2026). A post is long-form
+scrolling text and cannot live in a mandatory-snap deck, so posts became
+their own pages — and with a second page, inlining the tokens twice would
+guarantee drift. Hence `style.css`. **Still no build step.**
+
+⚠️ **`scroll-snap-type` belongs to the deck only.** It lives in `index.html`'s
+inline `<style>`, never in `style.css` — putting it in the shared sheet
+would break long-form scrolling on every post at once.
+
+**Adding a post** (cap ~10, owner's rule): `cp blog/_template.html
+blog/<slug>.html`, fill it in, then paste one `<li>` into the `#blog` screen
+in `index.html` (the markup comment there has the snippet) and bump the two
+wip lines' `--i`. Keep slugs ≤23 chars or they wrap the name column.
+
+Five screens: `home`, `readback`, `pizow`, `mac-mlx-cluster`, `blog`. The
+blog screen also carries the wip line. `mobile-recon` is listed on the
+landing but has no screen — it links straight to its repo.
 
 ## Read the skill first
 
