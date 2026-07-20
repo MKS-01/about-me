@@ -10,13 +10,17 @@ small blog. Deployed as a GitHub Page at **mks-01.github.io** (repo
 open a file and it runs.
 
 ```
-style.css                 shared design system: tokens, terminal grammar
-                          ($ prompts, man-page, cmdline), footer, tmux bar
+style.css                 shared by BOTH kinds of page: tokens, terminal
+                          grammar ($ prompts, man-page, cmdline), footer,
+                          tmux bar
+favicon.svg               the alien mark, one file, linked by every page
 index.html                the scroll-snap deck. Inline <style> holds ONLY
                           deck-specific CSS (.screen + snap, .mac + .app-*,
                           .projects, .hint) + one inline <script>
+blog/post.css             shared by every post: .wrap, .post prose rhythm,
+                          headings, pre/code, tables, .hero, .eof
 blog/_template.html       copy-me skeleton for a new post
-blog/<slug>.html          one post per file, long-form scrolling
+blog/<slug>.html          one post per file — content only, no <style>
 ```
 
 It was a single file until the blog arrived (July 2026). A post is long-form
@@ -24,9 +28,19 @@ scrolling text and cannot live in a mandatory-snap deck, so posts became
 their own pages — and with a second page, inlining the tokens twice would
 guarantee drift. Hence `style.css`. **Still no build step.**
 
+The same logic applied again in the restructure: posts had each grown a
+byte-identical ~116-line inline `<style>`, and the favicon data-URI had
+*already* drifted (the landing's copy had a highlight path the posts' lacked).
+Both were pulled into single sources — `blog/post.css` and `favicon.svg`.
+**Rule of thumb: if you're pasting the same block into a second file, it
+wants its own file.** There is still no build step and never should be.
+
+CSS layers, narrowest scope last: `style.css` → `blog/post.css` → a page's
+inline `<style>`. A new post should need **no `<style>` block at all**.
+
 ⚠️ **`scroll-snap-type` belongs to the deck only.** It lives in `index.html`'s
-inline `<style>`, never in `style.css` — putting it in the shared sheet
-would break long-form scrolling on every post at once.
+inline `<style>`, never in `style.css` or `blog/post.css` — putting it in a
+shared sheet would break long-form scrolling on every post at once.
 
 **Adding a post** (cap ~10, owner's rule): `cp blog/_template.html
 blog/<slug>.html`, fill it in, then paste one `<li>` into the `#blog` screen

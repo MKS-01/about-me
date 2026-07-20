@@ -6,8 +6,13 @@ description: How to write and publish a post on mks.sh — the blog/*.html forma
 # Writing a post for mks.sh
 
 Posts are hand-written HTML files in `blog/`, one per post. No markdown, no
-build step, no generator. `../style.css` supplies every token and the
-terminal grammar; the post's own inline `<style>` supplies the prose rhythm.
+build step, no generator. Two stylesheets do all the work — `../style.css`
+supplies every token and the terminal grammar, `post.css` supplies the prose
+rhythm — so a post file is **content only**.
+
+A new post should carry **no `<style>` block at all**. Everything in the
+markup table below is already styled. If you're about to write CSS in a
+post, it almost certainly belongs in `blog/post.css`.
 
 Read **`portfolio-conventions`** first for the design system and the site's
 voice rules — this skill only covers what's specific to posts.
@@ -292,10 +297,15 @@ Post pages are ordinary scrolling documents, so unlike the deck they
 screenshot directly — no test-copy trick needed.
 
 For mobile, headless clamps the window to 500px, so constrain
-`body { width: 390px }` in a scratch copy (and rewrite the `href` to
-`../style.css` as an absolute `file://` path, or the sheet won't load).
-Then confirm the page body itself doesn't overflow while wide `<pre>`
-blocks scroll internally — that split is the thing to check.
+`body { width: 390px }` in a scratch copy — and rewrite **both** sheet
+hrefs (`../style.css` and `post.css`) to absolute `file://` paths, or they
+silently won't load and you'll screenshot an unstyled page.
+
+Then confirm the page body itself doesn't overflow while wide `<pre>` blocks
+scroll internally — that split is the thing to check. Measured on
+`home-server-on-512mb` at 390px: `body` 390, `pre` box 342, `pre` scrollWidth
+457. Body at exactly 390 with `pre` scrolling past it is the pass condition;
+a body wider than 390 is the failure.
 
 Also confirm: the new `<li>` links to a file that exists, the slug matches
 in all three places, and the wip `--i` values were bumped.
@@ -303,8 +313,12 @@ in all three places, and the wip `--i` values were bumped.
 ## Don't
 
 - Don't put anything post-specific in `style.css` — it's shared with the
-  deck. Post CSS goes in the post's own `<style>`.
-- Don't add `scroll-snap-type` to a post, ever. See `portfolio-conventions`.
+  deck. Rules shared by posts go in `blog/post.css`; a post's own `<style>`
+  is for genuinely one-off styling and is normally absent.
+- Don't add `scroll-snap-type` to a post, ever — not in the post, not in
+  `post.css`. See `portfolio-conventions`.
+- Don't re-inline the favicon as a data-URI. Posts link `../favicon.svg`;
+  inlining it is what let the mark drift last time.
 - Don't add a dependency for markdown rendering, syntax highlighting, dates,
   or an RSS builder. The whole site is dependency-free on purpose; a
   highlighter would be the first script on the page.
