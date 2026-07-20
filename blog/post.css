@@ -1,0 +1,134 @@
+/* ─────────────────────────────────────────────────────────────────────
+   blog/post.css — the prose layer, shared by every blog/*.html.
+
+   Load order per post:  ../style.css  →  this  →  the post's own <style>
+   so a single post can still override a rule at equal specificity
+   without !important.
+
+   ⚠️ NO scroll-snap here, and none in ../style.css either. A post is
+   long-form scrolling text; the deck's `scroll-snap-type: y mandatory`
+   lives in index.html's inline <style> and must stay there. Putting it
+   in a shared sheet breaks every post at once.
+
+   What goes where:
+     ../style.css   tokens, reset, .in entrance, header/wordmark,
+                    .prompt/.cmdline/.output, .man-*, footer, tmux bar
+     this file      anything shared by posts but meaningless on the deck
+     post <style>   genuinely one-off styling for that post alone
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── page frame ─────────────────────────────────── */
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem calc(5rem + env(safe-area-inset-bottom));
+}
+.back { display: inline-block; text-decoration: none; }
+
+/* ── title + meta ───────────────────────────────── */
+.post-title {
+  margin-top: 1.6rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--text);
+}
+/* the title wears its markdown hash — write <h2>title</h2>, not <h2># title</h2> */
+.post-title::before { content: "# "; color: var(--text-faint); font-weight: 400; }
+.post-meta { margin-top: 0.5rem; color: var(--text-faint); font-size: 0.78rem; }
+
+/* ── prose ──────────────────────────────────────── */
+.post { margin-top: 2.2rem; max-width: 68ch; font-size: 0.85rem; }
+.post > * + * { margin-top: 1.15rem; }
+.post p { color: var(--text-dim); }
+.post b, .post strong { color: var(--text); font-weight: 500; }
+.post a { color: var(--accent); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  .post a:hover { text-decoration: underline; text-underline-offset: 3px; }
+}
+
+/* headings wear their hashes too, same reason as the title */
+.post h2, .post h3 {
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.45;
+}
+.post h2 { margin-top: 2.6rem; font-size: 1rem; }
+.post h3 { margin-top: 2rem; font-size: 0.9rem; }
+.post h2::before { content: "## "; color: var(--text-faint); font-weight: 400; }
+.post h3::before { content: "### "; color: var(--text-faint); font-weight: 400; }
+
+.post ul, .post ol { padding-left: 1.5rem; color: var(--text-dim); }
+.post li + li { margin-top: 0.4rem; }
+.post li::marker { color: var(--text-faint); }
+
+.post blockquote {
+  border-left: 2px solid var(--text-faint);
+  padding-left: 1rem;
+  color: var(--text-faint);
+}
+
+/* code: inline stays subtle, blocks scroll on their own so the page
+   body never scrolls sideways on a phone. Don't "fix" a wide block
+   with white-space: pre-wrap — the internal scroll is the design. */
+.post code {
+  background: #161b22;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.92em;
+  color: var(--accent);
+}
+.post pre {
+  background: #161b22;
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+.post pre code { background: none; padding: 0; color: var(--text-dim); }
+.post pre .g { color: var(--green); }        /* the $ prompt inside a block */
+.post pre .c { color: var(--text-faint); }   /* a comment inside a block */
+
+.post img { max-width: 100%; height: auto; border-radius: 6px; }
+
+/* tables scroll rather than pushing the page wide */
+.post .scroll-x { overflow-x: auto; }
+.post table { border-collapse: collapse; font-size: 0.8rem; min-width: 26rem; }
+.post th, .post td {
+  text-align: left;
+  padding: 0.4rem 1rem 0.4rem 0;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.post th { color: var(--text); font-weight: 500; }
+
+/* ── optional hero diagram ──────────────────────── */
+/* An inline SVG of the architecture, drawn in the same visual language as
+   the site's CSS MacBook (faint strokes, 5%-tint fills, monospace labels).
+   Inert on posts that don't use one, so it lives here rather than being
+   pasted into each post that does. */
+/* Match the prose measure exactly: same max-width AND same font-size, so
+   `ch` resolves identically in both. Without the font-size the figure
+   computes ch against the 14px body and overshoots the text column. */
+.hero { margin-top: 2rem; max-width: 68ch; font-size: 0.85rem; }
+/* viewBox + height:auto keeps the aspect ratio at any width */
+.hero svg { display: block; width: 100%; height: auto; }
+.hero figcaption {
+  margin-top: 0.7rem;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+}
+
+/* less(1) signs off at the bottom of the file */
+.eof { margin-top: 3rem; color: var(--text-faint); font-size: 0.8rem; }
+
+/* ── narrow screens ─────────────────────────────── */
+@media (max-width: 540px) {
+  .wrap { padding: 2rem 1.25rem calc(4.5rem + env(safe-area-inset-bottom)); }
+  .post-title { font-size: 1.25rem; }
+  /* at ~0.64 scale on a phone the 10px detail labels land at ~6px — mush.
+     Drop them and keep the shape; the caption and prose carry the detail. */
+  .hero .sub { display: none; }
+}

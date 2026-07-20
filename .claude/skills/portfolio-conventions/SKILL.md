@@ -17,21 +17,57 @@ The site was one file until the blog. Posts forced a split, because a post is
 long-form scrolling text and a deck screen is a snap stop — opposite layout
 models — and duplicating tokens across 11 files would guarantee drift.
 
-- **`style.css`** — anything two pages share: `:root` tokens, reset, base
-  type, `.in` entrance, header/wordmark, `.prompt`/`.cmdline`/`.output`,
-  `.reading`, `.man-*`, `footer`, `.rail` tmux bar, `.site-foot`, `.cursor`.
+Three layers, narrowest scope last:
+
+- **`style.css`** — anything *two different kinds of page* share: `:root`
+  tokens, reset, base type, `.in` entrance, header/wordmark,
+  `.prompt`/`.cmdline`/`.output`, `.reading`, `.man-*`, `footer`, `.rail`
+  tmux bar, `.site-foot`, `.cursor`.
+- **`blog/post.css`** — shared by every post, meaningless on the deck:
+  `.wrap`, `.post` prose rhythm, headings, `pre`/`code`, tables,
+  `.hero`, `.eof`. Posts link it as `href="post.css"` (sibling file).
 - **`index.html` inline `<style>`** — deck-only: `.screen` + snap, `.mac` and
   every `.app-*`, `.projects`, `.hint`, the mac's mobile height tiers.
-- **`blog/*.html` inline `<style>`** — post-only: `.wrap`, `.post` prose
-  rhythm, headings, `pre`/`code`, `.eof`.
+- **`blog/*.html` inline `<style>`** — genuinely one-off styling for that
+  single post. **Usually empty, and that's correct** — reach for it only
+  when a rule would be wrong on every other post.
 
 **The one rule that breaks everything if violated:** `scroll-snap-type: y
 mandatory` stays in `index.html`'s inline block. Never move it to
-`style.css` — it would apply to every post and destroy long-form scrolling.
-The comment saying so is in both files; keep it there.
+`style.css` *or* `blog/post.css` — either would apply to every post and
+destroy long-form scrolling. The comment saying so is in both files; keep it.
 
-Inline blocks load *after* the linked sheet, so a page can override shared
-rules at equal specificity without `!important`.
+Load order is `style.css` → `post.css` → inline, so each layer can override
+the one before it at equal specificity without `!important`.
+
+**Why `post.css` exists (July 2026):** the first two posts and the template
+each carried a byte-identical ~116-line inline block. At the owner's ~10-post
+cap that is ~1,100 lines of copy-paste with no shared source — the exact
+drift `style.css` was created to prevent. If you find yourself pasting CSS
+into a new post, it belongs in `post.css` instead.
+
+## One asset, one file
+
+`favicon.svg` at the repo root is the single source for the alien mark —
+`index.html` links `favicon.svg`, posts link `../favicon.svg`.
+
+This is not a hypothetical rule. Both used to inline the same data-URI
+separately and **had already drifted**: the landing's copy carried a
+highlight `<path>` the posts' copy lacked, so the two served visibly
+different marks. Don't re-inline it.
+
+Its hexes are hardcoded (`#58A6FF`, `#0D1117`) because a favicon loads
+outside the page's cascade and can't see `var(--accent)`. If a token
+changes, update the literals in `favicon.svg` too — the comment in that
+file says so.
+
+**The header wordmark alien is the one copy that must stay inline** — it
+fills from `var(--accent)`/`var(--bg)`, so it has to live in the page's
+cascade; an `<img>` or a cross-document `<use>` can't see those. It had
+drifted the same way (landing had 3 paths, every post had 2 — missing the
+highlight stroke); all four are now identical **3-path** markup. When you
+touch the alien, `grep -c '<path' ` across `index.html` and `blog/*.html`
+and confirm they still match.
 
 ## Blog
 
